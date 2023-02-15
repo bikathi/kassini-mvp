@@ -3,20 +3,19 @@ spring:
         broker-url: tcp://localhost:61616
         user: admin
         password: admin
+    data:
+        mongodb:
+            uri: mongodb://127.0.0.1:27017/hobbyz_hub_database
+    datasource:
+        url: jdbc:mysql://localhost:3306/hobbyz_hub_schema?useSSL=false
+        username: root
+        password: rootUser@123
+    jpa:
+        hibernate:
+            ddl-auto: update
 
 service:
   api:
     version: 0.0.1
   organization:
     name: Tropic World Paradise
-spring:
-  data:
-    mongodb:
-      uri: mongodb://127.0.0.1:27017/hobbyz_hub_database
-  datasource:
-    url: jdbc:mysql://localhost:3306/hobbyz_hub_schema?useSSL=false
-    username: root
-    password: rootUser@123
-  jpa:
-    hibernate:
-        ddl-auto: update
