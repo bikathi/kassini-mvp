@@ -1,4 +1,4 @@
-package com.hobbyzhub;
+package com.hobbyzhub.chatservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
