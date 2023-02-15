@@ -19,22 +19,38 @@ public class StompMessageController {
 	
 	@MessageMapping("/private")
 	public void privateMessage(@Payload PrivateMessageDTO messagePayload) {
-		PrivateMessageDTO modifiedMessage = 
-			PrivateMessageDTO.builder()
-				.toUserId(messagePayload.getFromUserId())
-				.dateSent(messagePayload.getDateSent())
-				.message(messagePayload.getMessage())
-			.build();
 		
 		String toUserId = messagePayload.getToUserId();
 		
-		messageService.sendPrivateMessage(toUserId, modifiedMessage);
+		Boolean result = messageService.sendPrivateMessage(toUserId, messagePayload);
+		if(result == Boolean.TRUE) {
+			log.info(
+				"Successfully sent private message fromUserId: {} toUserId: {}", 
+				messagePayload.getFromUserId(),
+				messagePayload.getToUserId());
+		} else {
+			log.error(
+				"Failed to send private message fromUserId: {} toUserId: {}",
+				messagePayload.getFromUserId(),
+				messagePayload.getToUserId());
+		}
 	}
 	
 	@MessageMapping("/group")
 	public void groupMessage(@Payload GroupMessageDTO messagePayload) {
 		String toGroupId = messagePayload.getToGroupId();
 		
-		messageService.sendGroupMessage(toGroupId, messagePayload);
+		Boolean result = messageService.sendGroupMessage(toGroupId, messagePayload);
+		if(result == Boolean.TRUE) {
+			log.info(
+				"Successfully sent group message fromUserId: {} toGroupId: {}", 
+				messagePayload.getFromUserId(),
+				messagePayload.getToGroupId());
+		} else {
+			log.error(
+				"Failed to send group message fromUserId: {} toGroupId: {}",
+				messagePayload.getFromUserId(),
+				messagePayload.getToGroupId());
+		}
 	}
 }
