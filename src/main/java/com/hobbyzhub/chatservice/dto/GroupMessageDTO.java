@@ -1,6 +1,9 @@
 package com.hobbyzhub.chatservice.dto;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +14,10 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class GroupMessageDTO {
+@Builder
+public class GroupMessageDTO implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private String fromUserId;
 	private String toGroupId;
 	private String message;
