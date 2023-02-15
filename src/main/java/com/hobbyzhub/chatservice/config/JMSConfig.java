@@ -34,7 +34,7 @@ public class JMSConfig {
 	private String password;
 	
 	@Bean
-	private ActiveMQConnectionFactory connectionFactory() {
+	public ActiveMQConnectionFactory connectionFactory() {
 		ActiveMQConnectionFactory connectionFactory = 
 			new ActiveMQConnectionFactory();
 		
