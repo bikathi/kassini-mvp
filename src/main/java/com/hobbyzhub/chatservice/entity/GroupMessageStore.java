@@ -29,7 +29,7 @@ public class GroupMessageStore implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	private String groupId;
+	private String chatId; // will be same as groupId
 	private String dateInitiated;
 	private Long messageCount;
 	
