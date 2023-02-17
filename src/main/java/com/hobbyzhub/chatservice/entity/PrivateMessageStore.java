@@ -30,14 +30,16 @@ public class PrivateMessageStore implements Serializable {
 	@Id
 	private String chatId;
 	private String dateInitiated;
-	private Long messageCount;
+	
+	@Builder.Default
+	private Long messageCount = 0L;
 	
 	@Builder.Default
 	private List<PrivateMessageDTO> messages = new ArrayList<>();
 	
 	// convenience methods
-	public boolean addMessage(PrivateMessageDTO newMessage) {
-		return this.messages.add(newMessage);
+	public void addMessage(PrivateMessageDTO newMessage) {
+		this.messages.add(newMessage);
 	}
 	
 	public List<PrivateMessageDTO> getMessageList(Integer startIndex, int endIndex) {
@@ -49,5 +51,9 @@ public class PrivateMessageStore implements Serializable {
 		} else {
 			return new ArrayList<>();
 		}
+	}
+	
+	public void increaseMessageCount() {
+		this.messageCount++;
 	}
 }
