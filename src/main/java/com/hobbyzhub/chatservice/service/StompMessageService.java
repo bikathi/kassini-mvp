@@ -17,15 +17,20 @@ public class StompMessageService {
 	@Autowired
 	JmsTemplate jmsTemplate;
 	
+	@Autowired
+	GroupMessageStoreService groupMessageStoreSevice;
+	
 	public Boolean sendPrivateMessage(String toUserId, PrivateMessageDTO message) {
 		try {
             String jsonObj = new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(message);
+            // first send the message to the queue
             jmsTemplate.send("user-" + toUserId, messageCreator -> {
                 TextMessage deliverable = messageCreator.createTextMessage();
                 deliverable.setText(jsonObj);
                 return deliverable;
             });
             
+            MessageConvenienceMethods.addPrivateMessageToStore(message);
             return Boolean.TRUE;
         }
         catch (Exception ex) {
