@@ -2,7 +2,6 @@ package com.hobbyzhub.chatservice.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -31,10 +30,12 @@ public class GroupMessageStore implements Serializable {
 	@Id
 	private String chatId; // will be same as groupId
 	private String dateInitiated;
-	private Long messageCount;
 	
 	@Builder.Default
-	private List<GroupMessageDTO> messages = new LinkedList<>();
+	private Long messageCount = 0L;
+	
+	@Builder.Default
+	private List<GroupMessageDTO> messages = new ArrayList<>();
 	
 	// convenience methods
 	public boolean addMessage(GroupMessageDTO newMessage) {
@@ -50,6 +51,10 @@ public class GroupMessageStore implements Serializable {
 		} else {
 			return new ArrayList<>();
 		}
+	}
+	
+	public void increaseMessageCount() {
+		this.messageCount++;
 	}
 	
 }
