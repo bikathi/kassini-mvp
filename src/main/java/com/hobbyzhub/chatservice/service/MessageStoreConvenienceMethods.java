@@ -14,7 +14,7 @@ import com.hobbyzhub.chatservice.entity.GroupMessageStore;
 import com.hobbyzhub.chatservice.entity.PrivateMessageStore;
 
 @Service
-public class MessageConvenienceMethods {
+public class MessageStoreConvenienceMethods {
 	@Autowired
 	PrivateMessageStoreService privateMessageStoreService;
 	
