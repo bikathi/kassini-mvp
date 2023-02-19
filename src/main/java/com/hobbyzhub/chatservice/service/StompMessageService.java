@@ -20,6 +20,9 @@ public class StompMessageService {
 	@Autowired
 	GroupMessageStoreService groupMessageStoreSevice;
 	
+	@Autowired
+	MessageStoreConvenienceMethods convenienceMethods;
+	
 	public Boolean sendPrivateMessage(String toUserId, PrivateMessageDTO message) {
 		try {
             String jsonObj = new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(message);
@@ -30,7 +33,7 @@ public class StompMessageService {
                 return deliverable;
             });
             
-            MessageConvenienceMethods.addPrivateMessageToStore(message);
+            convenienceMethods.addPrivateMessageToStore(message);
             return Boolean.TRUE;
         }
         catch (Exception ex) {
@@ -48,6 +51,7 @@ public class StompMessageService {
                 return deliverable;
             });
             
+            convenienceMethods.addGroupMessageToStore(message);
             return Boolean.TRUE;
         }
         catch (Exception ex) {
