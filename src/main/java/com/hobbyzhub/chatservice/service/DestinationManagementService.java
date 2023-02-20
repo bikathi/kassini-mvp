@@ -7,14 +7,10 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hobbyzhub.chatservice.dto.GroupMessageDTO;
+import com.hobbyzhub.chatservice.dto.PrivateMessageDTO;
 
 import jakarta.jms.TextMessage;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -23,15 +19,21 @@ public class DestinationManagementService {
 	@Autowired
 	JmsTemplate jmsTemplate;
 	
+	@Autowired
+	MessageStoreConvenienceMethods convenienceMethods;
+	
 	public boolean createPrivateDestination(String userId) {
+		PrivateMessageDTO internalPrivateMessage = 
+			PrivateMessageDTO.builder()
+			.fromUserId("Hobbyzhub")
+			.toUserId(userId)
+			.message("Welcome to Hobbyzhub. We're thrilled to have you.")
+			.dateSent(LocalDate.now().toString())
+			.build();
+		
 		try {
 			String internalMessage = new ObjectMapper().writer().withDefaultPrettyPrinter()
-				.writeValueAsString(
-					InternalMessageSource.builder()
-					.id("HobbyzHub")
-					.dateSent(LocalDate.now().toString())
-					.message("Welcome to HobbyzHub. We're glad to have you.")
-					.build());
+				.writeValueAsString(internalPrivateMessage);
 			
 			jmsTemplate.send("user-" + userId, messageCreator -> {
                 TextMessage deliverable = messageCreator.createTextMessage();
@@ -39,6 +41,7 @@ public class DestinationManagementService {
                 return deliverable;
             });
 			
+			convenienceMethods.addPrivateMessageToStore(internalPrivateMessage);
 			log.info("JMSTemplate created new private destination of ID: {}", "user-" + userId);
 			return Boolean.TRUE;
 		} catch(Exception ex) {
@@ -50,13 +53,16 @@ public class DestinationManagementService {
 	public boolean createGroupDestination(String groupId) {
 		try {
 			String dateToday = LocalDate.now().toString();
+			GroupMessageDTO internalGroupMessage = 
+				GroupMessageDTO.builder()
+				.fromUserId("Hobbyzub")
+				.toGroupId(groupId)
+				.message("Group Created On: " + dateToday)
+				.dateSent(dateToday)
+				.build();
+			
 			String internalMessage = new ObjectMapper().writer().withDefaultPrettyPrinter()
-				.writeValueAsString(
-					InternalMessageSource.builder()
-					.id("HobbyzHub")
-					.dateSent(dateToday)
-					.message("Group Created On: " + dateToday)
-					.build());
+				.writeValueAsString(internalGroupMessage);
 			
 			jmsTemplate.send("group-" + groupId, messageCreator -> {
 	            TextMessage deliverable = messageCreator.createTextMessage();
@@ -70,17 +76,5 @@ public class DestinationManagementService {
 			log.error("JMSTemplate error creating group destination: {}", ex.getMessage());
 			return Boolean.FALSE;
 		}
-	}
-	
-	@Getter
-	@Setter
-	@NoArgsConstructor
-	@AllArgsConstructor
-	@ToString
-	@Builder
-	static class InternalMessageSource {
-		private String id;
-		private String message;
-		private String dateSent;
 	}
 }
