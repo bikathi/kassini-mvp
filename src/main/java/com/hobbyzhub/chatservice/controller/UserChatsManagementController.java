@@ -1,6 +1,7 @@
 package com.hobbyzhub.chatservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hobbyzhub.chatservice.entity.UserChatsList;
 import com.hobbyzhub.chatservice.payload.request.JoinNewChatRequest;
+import com.hobbyzhub.chatservice.payload.response.GenericServiceResponse;
 import com.hobbyzhub.chatservice.service.UserChatsManagementService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 public class UserChatsManagementController {
 	@Autowired
 	UserChatsManagementService chatsManagementService;
+	
+	@Value("${service.api.version}")
+	private String apiVersion;
+	
+	@Value("${service.organization.name}")
+	private String organizationName;
 	
 	@PostMapping(value = "/create/list/{userId}")
 	public ResponseEntity<?> createUserChatList(@PathVariable String userId) {
@@ -57,9 +65,29 @@ public class UserChatsManagementController {
 		}
 	}
 	
-	@GetMapping(value = "/get/list/userId")
-	public ResponseEntity<?> getUserChatList(@PathVariable String ChatId) {
-		return null;
+	@GetMapping(value = "/get/list/{userId}")
+	public ResponseEntity<?> getUserChatList(@PathVariable String userId) {
+		try {
+			UserChatsList retrievedList = chatsManagementService.getUserChatList(userId).get();
+			return new ResponseEntity<>(
+				new GenericServiceResponse<UserChatsList>(
+					apiVersion, 
+					organizationName, 
+					"Error while retrieving chats list for userId: " + userId, 
+					HttpStatus.OK.value(), 
+					retrievedList), 
+			HttpStatus.OK);
+		} catch(Exception ex) {
+			log.error("Error while retrieving chats list for userID: {}", ex.getMessage());
+			return new ResponseEntity<>(
+				new GenericServiceResponse<>(
+					apiVersion, 
+					organizationName, 
+					"Error while retrieving chats list for userId: " + userId, 
+					HttpStatus.INTERNAL_SERVER_ERROR.value(), 
+					null), 
+			HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@DeleteMapping(value = "/delete/{userId}/{chatId}")

@@ -1,5 +1,7 @@
 package com.hobbyzhub.chatservice.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -30,8 +32,8 @@ public class UserChatsManagementService {
 		mongoTemplate.upsert(query, updateDefinition, UserChatsList.class);
 	}
 	
-	public void getUserChatList(String userId) {
-		
+	public Optional<UserChatsList> getUserChatList(String userId) {
+		return chatsListRepository.findById(userId);
 	}
 	
 	public void deleteChatFromList(String userId) {
