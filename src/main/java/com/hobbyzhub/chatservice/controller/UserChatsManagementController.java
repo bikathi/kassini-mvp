@@ -58,6 +58,14 @@ public class UserChatsManagementController {
 	
 	@DeleteMapping(value = "/delete/list/{userId}")
 	public ResponseEntity<?> deleteEntireChatList(@PathVariable String userId) {
-		return null;
+		try {
+			chatsManagementService.deleteEntireChatList(userId);
+			
+			log.info("Successfully deleted entire chat list for userId: {}", userId);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch(Exception ex) {
+			log.error("Error while trying to delete entire chat list: {}", ex.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }
