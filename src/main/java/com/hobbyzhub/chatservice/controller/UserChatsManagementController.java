@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hobbyzhub.chatservice.entity.UserChatsList;
+import com.hobbyzhub.chatservice.payload.request.JoinNewChatRequest;
 import com.hobbyzhub.chatservice.service.UserChatsManagementService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +44,17 @@ public class UserChatsManagementController {
 	}
 	
 	@PutMapping(value = "/update/list/{userId}")
-	public ResponseEntity<?> updateUserChatList(@PathVariable String userId) {
-		return null;
+	public ResponseEntity<?> addToUserChatList(
+		@PathVariable String userId, @RequestBody JoinNewChatRequest newListItem) {
+		try {
+			chatsManagementService.addToUserChatList(userId, newListItem);
+			
+			log.info("Successfully add new chat to user's list");
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch(Exception ex) {
+			log.error("Error while adding new chat to user's list: {}", ex.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@GetMapping(value = "/get/list/userId")
