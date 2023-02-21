@@ -70,6 +70,7 @@ public class DestinationManagementService {
 	            return deliverable;
 	        });
 			
+			convenienceMethods.addGroupMessageToStore(internalGroupMessage);
 			log.info("JMSTemplate created new group destination of ID: {}", "group-" + groupId);
 			return Boolean.TRUE;
 		} catch(Exception ex) {
