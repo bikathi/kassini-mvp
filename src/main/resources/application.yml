@@ -21,3 +21,5 @@ service:
     version: 0.0.1
   organization:
     name: Tropic World Paradise
+server:
+  port: 9101
