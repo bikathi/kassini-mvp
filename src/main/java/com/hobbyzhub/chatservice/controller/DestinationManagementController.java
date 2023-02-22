@@ -24,8 +24,6 @@ public class DestinationManagementController {
 		try {
 			Boolean result = destinationService.createGroupDestination(groupId);
 			do {
-				// JPA code will come here
-				// *****
 				log.info("Successfully created group destination with id: {}", "group-" + groupId);
 				result = false;
 				
@@ -42,8 +40,6 @@ public class DestinationManagementController {
 		try {
 			Boolean result = destinationService.createPrivateDestination(userId);
 			do {
-				// JPA code will come here
-				// *****
 				log.info("Successfully created private destination with id: {}", "user-" + userId);
 				result = false;
 				
