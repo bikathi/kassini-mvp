@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hobbyzhub.chatservice.entity.UserChatsList;
+import com.hobbyzhub.chatservice.payload.request.DeleteChatRequest;
 import com.hobbyzhub.chatservice.payload.request.JoinNewChatRequest;
 import com.hobbyzhub.chatservice.payload.response.GenericServiceResponse;
 import com.hobbyzhub.chatservice.service.UserChatsManagementService;
@@ -73,7 +74,7 @@ public class UserChatsManagementController {
 				new GenericServiceResponse<UserChatsList>(
 					apiVersion, 
 					organizationName, 
-					"Error while retrieving chats list for userId: " + userId, 
+					"Successfully retrieved chats list for userId: " + userId, 
 					HttpStatus.OK.value(), 
 					retrievedList), 
 			HttpStatus.OK);
@@ -90,9 +91,30 @@ public class UserChatsManagementController {
 		}
 	}
 	
-	@DeleteMapping(value = "/delete/{userId}/{chatId}")
-	public ResponseEntity<?> deleteChatFromList(@PathVariable String userId, @PathVariable String chatId) {
-		return null;
+	@DeleteMapping(value = "/delete/{userId}")
+	public ResponseEntity<?> deleteChatFromList(
+		@PathVariable String userId, @RequestBody DeleteChatRequest deleteRequest) {
+		try {
+			chatsManagementService.deleteChatFromList(userId, deleteRequest);
+			return new ResponseEntity<>(
+				new GenericServiceResponse<UserChatsList>(
+					apiVersion, 
+					organizationName, 
+					"Successfully delete chat from chats list of userId: " + userId, 
+					HttpStatus.OK.value(), 
+					null), 
+			HttpStatus.OK);
+		} catch(Exception ex) {
+			log.error("Error deleting chat with ID: {} from user's list of chats", deleteRequest.getChatId());
+			return new ResponseEntity<>(
+				new GenericServiceResponse<>(
+					apiVersion, 
+					organizationName, 
+					"Error deleting chat with ID: " + deleteRequest.getChatId() + " from user's list of chats", 
+					HttpStatus.INTERNAL_SERVER_ERROR.value(), 
+					null), 
+			HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@DeleteMapping(value = "/delete/list/{userId}")
