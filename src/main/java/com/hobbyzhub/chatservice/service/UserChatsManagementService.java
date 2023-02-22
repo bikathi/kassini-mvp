@@ -10,8 +10,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import com.hobbyzhub.chatservice.entity.UserChatsList;
-import com.hobbyzhub.chatservice.payload.request.DeleteChatRequest;
-import com.hobbyzhub.chatservice.payload.request.JoinNewChatRequest;
+import com.hobbyzhub.chatservice.payload.request.AddDelChatRequest;
 import com.hobbyzhub.chatservice.repository.UserChatsListRepository;
 
 @Service
@@ -26,7 +25,7 @@ public class UserChatsManagementService {
 		chatsListRepository.save(newList);
 	}
 	
-	public void addToUserChatList(String userId, JoinNewChatRequest newListItem) {
+	public void addToUserChatList(String userId, AddDelChatRequest newListItem) {
 		Query query = new Query().addCriteria(Criteria.where("_id").is(userId));
 		Update updateDefinition = new Update().push("chatList", newListItem);
 		
@@ -37,11 +36,11 @@ public class UserChatsManagementService {
 		return chatsListRepository.findById(userId);
 	}
 	
-	public void deleteChatFromList(String userId, DeleteChatRequest chatToDelete) {
+	public void deleteChatFromList(String userId, AddDelChatRequest chatToDelete) {
 		Query query = new Query().addCriteria(Criteria.where("_id").is(userId));
 		
 		Update updateDefinition = new Update().pull("chatList", chatToDelete);
-		mongoTemplate.updateFirst(query, updateDefinition, UserChatsList.class);
+		mongoTemplate.findAndModify(query, updateDefinition, UserChatsList.class);
 	}
 	
 	public void deleteEntireChatList(String userId) {

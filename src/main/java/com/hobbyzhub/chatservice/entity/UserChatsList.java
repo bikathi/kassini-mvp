@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.hobbyzhub.chatservice.payload.request.JoinNewChatRequest;
+import com.hobbyzhub.chatservice.payload.request.AddDelChatRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,5 +30,5 @@ public class UserChatsList implements Serializable {
 	private String userId; // same as real user's id
 	
 	@Builder.Default
-	private List<JoinNewChatRequest> chatList = new ArrayList<>();
+	private List<AddDelChatRequest> chatList = new ArrayList<>();
 }
