@@ -13,7 +13,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class JoinNewChatRequest {
+public class AddDelChatRequest {
 	private String chatId;
 	private String chatType; // group or private chat
 	private Boolean chatActive; // is the chat blocked(false) or active(true)
