@@ -13,6 +13,8 @@ spring:
     jpa:
         hibernate:
             ddl-auto: update
+    application:
+        name: chat-service
 
 service:
   api:
