@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hobbyzhub.chatservice.entity.UserChatsList;
-import com.hobbyzhub.chatservice.payload.request.DeleteChatRequest;
-import com.hobbyzhub.chatservice.payload.request.JoinNewChatRequest;
+import com.hobbyzhub.chatservice.payload.request.AddDelChatRequest;
 import com.hobbyzhub.chatservice.payload.response.GenericServiceResponse;
 import com.hobbyzhub.chatservice.service.UserChatsManagementService;
 
@@ -54,7 +53,7 @@ public class UserChatsManagementController {
 	
 	@PutMapping(value = "/update/list/{userId}")
 	public ResponseEntity<?> addToUserChatList(
-		@PathVariable String userId, @RequestBody JoinNewChatRequest newListItem) {
+		@PathVariable String userId, @RequestBody AddDelChatRequest newListItem) {
 		try {
 			chatsManagementService.addToUserChatList(userId, newListItem);
 			
@@ -91,11 +90,13 @@ public class UserChatsManagementController {
 		}
 	}
 	
-	@DeleteMapping(value = "/delete/{userId}")
+	@DeleteMapping(value = "/delete/chat/{userId}")
 	public ResponseEntity<?> deleteChatFromList(
-		@PathVariable String userId, @RequestBody DeleteChatRequest deleteRequest) {
+		@PathVariable String userId, @RequestBody AddDelChatRequest deleteRequest) {
 		try {
 			chatsManagementService.deleteChatFromList(userId, deleteRequest);
+			
+			log.info("Successfully delete chat from list of userId: {}", userId);
 			return new ResponseEntity<>(
 				new GenericServiceResponse<UserChatsList>(
 					apiVersion, 
