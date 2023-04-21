@@ -13,13 +13,27 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ChatModel implements Serializable {
     @Id
     private String chatId;
     private String chatName;
+
     private String isGroupChat;
 
-    private List<String> users;
+    private List<ChatParticipants> chatParticipants;
 
     private String latestMessage;
+}
+
+
+@Getter
+@Setter
+@AllArgsConstructor
+class ChatParticipants {
+    private String userId;
+    private String userName;
+
+    // this is only for group chats. private chats have no admins
+    private Boolean isChatAdmin;
 }
