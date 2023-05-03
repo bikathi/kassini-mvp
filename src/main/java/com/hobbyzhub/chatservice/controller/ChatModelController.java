@@ -2,6 +2,7 @@ package com.hobbyzhub.chatservice.controller;
 
 import com.hobbyzhub.chatservice.entity.ChatModel;
 import com.hobbyzhub.chatservice.payload.request.NewGroupChatModelRequest;
+import com.hobbyzhub.chatservice.payload.request.NewPrivateChatModel;
 import com.hobbyzhub.chatservice.payload.response.GenericServiceResponse;
 import com.hobbyzhub.chatservice.service.ChatModelService;
 import com.hobbyzhub.chatservice.service.DestinationManagementService;
@@ -12,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -60,68 +64,78 @@ public class ChatModelController {
             // create a new destination with these
             boolean destinationCreated = destinationService.createGroupDestination(groupChatModelId);
             if(!destinationCreated) {
-                log.error("Created group but failed to create message destination");
+                log.warn("Created group but failed to create message destination");
                 return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
                     "Failed to create group messages destination", HttpStatus.PARTIAL_CONTENT.value(), null),
-                HttpStatus.INTERNAL_SERVER_ERROR);
+                HttpStatus.PARTIAL_CONTENT);
             }
-            log.error("Created GroupChat of id: {} and message destination", groupChatModelId);
+            log.info("Created GroupChat of id: {} and message destination", groupChatModelId);
             return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Successfully created new GroupChat model", HttpStatus.OK.value(), null),
-            HttpStatus.INTERNAL_SERVER_ERROR);
-        }catch(Exception ex) {
-            log.error("Error creating group chat details: {}", ex.getMessage());
+            HttpStatus.OK);
+        } catch(Exception ex) {
+            log.error("Error creating group chat. Details: {}", ex.getMessage());
             return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
-                "Error creating group chat details", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
+                "Error creating group chat", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
             HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping(value = "/private-chat/create")
     // TODO: COME COMPLETE THIS LATER
-    public ResponseEntity<?> newPrivateChatModel(@RequestBody NewGroupChatModelRequest newGroupModelRequest) {
-        // TODO: REMEMBER TO FIX THIS GROUP CHAT ID PART
-        String groupChatModelId = "";
+    public ResponseEntity<?> newPrivateChatModel(@RequestBody NewPrivateChatModel newChatModelRequest) {
+        // TODO: REMEMBER TO FIX THIS PRIVATE CHAT ID PART
+        String privateChatModelId = "";
 
         // first create the proper chat model using details in the request payload
-        ChatModel groupChatModel = ChatModel.builder()
-                .chatId(groupChatModelId)
-                .chatName(newGroupModelRequest.getChatName())
-                .createdBy(newGroupModelRequest.getCreateByUserName())
-                .isGroupChat(true)
-                .build();
+        ChatModel privateChatModel = ChatModel.builder()
+            .chatId(privateChatModelId)
+            .chatName(newChatModelRequest.getFromUserId() + newChatModelRequest.getToUserId())
+            .createdBy(newChatModelRequest.getFromUserId())
+            .isGroupChat(false)
+        .build();
 
-        // then add the creator of the group as the first participant
-        groupChatModel.addChatParticipant(
-                ChatModel.ChatParticipants.builder()
-                        .userId(newGroupModelRequest.getCreatedByUserId())
-                        .userName(newGroupModelRequest.getCreateByUserName())
-                        .userProfilePicLink(newGroupModelRequest.getUserProfilePicLink())
-                        .isChatAdmin(true)
-                        .build()
+        // add the creator of the chat as the first participant
+        privateChatModel.addChatParticipant(
+            ChatModel.ChatParticipants.builder()
+                .userId(newChatModelRequest.getFromUserId())
+                .userName(newChatModelRequest.getFromUserName())
+                .userProfilePicLink(newChatModelRequest.getFromUserProfilePicLink())
+                .isChatAdmin(true)
+            .build()
+        );
+
+        // add the recipient of the first message as the second chat participant
+        privateChatModel.addChatParticipant(
+            ChatModel.ChatParticipants.builder()
+                .userId(newChatModelRequest.getToUserId())
+                .userName(newChatModelRequest.getToUserName())
+                .userProfilePicLink(newChatModelRequest.getToUserProfilePicLink())
+                .isChatAdmin(true)
+            .build()
         );
 
         try {
             // try saving the new ChatModel details
-            chatModelService.createNewChatModel(groupChatModel);
+            chatModelService.createNewChatModel(privateChatModel);
 
             // create a new destination with these
-            boolean destinationCreated = destinationService.createGroupDestination(groupChatModelId);
+            boolean destinationCreated = destinationService.createPrivateDestination(privateChatModelId);
             if(!destinationCreated) {
-                log.error("Created group but failed to create message destination");
+                log.warn("Created private chat but failed to create message destination");
                 return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
-                        "Failed to create group messages destination", HttpStatus.PARTIAL_CONTENT.value(), null),
-                        HttpStatus.INTERNAL_SERVER_ERROR);
+                    "Failed to create chat message destination", HttpStatus.PARTIAL_CONTENT.value(), null),
+                HttpStatus.PARTIAL_CONTENT);
             }
-            log.error("Created GroupChat of id: {} and message destination", groupChatModelId);
+            log.info("Created PrivateChat of id: {} and message destination", privateChatModelId);
             return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
-                    "Successfully created new GroupChat model", HttpStatus.OK.value(), null),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }catch(Exception ex) {
-            log.error("Error creating group chat details: {}", ex.getMessage());
+                "Successfully created new private chat model", HttpStatus.OK.value(), null),
+            HttpStatus.OK);
+        } catch(Exception ex) {
+            log.error("Error creating private chat. Details: {}", ex.getMessage());
             return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
-                    "Error creating group chat details", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+                "Error creating group chat", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
+            HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
