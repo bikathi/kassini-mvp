@@ -35,5 +35,7 @@ class ChatParticipants {
     private String userName;
 
     // this is only for group chats. private chats have no admins
+    // so in group chats, this will be false
     private Boolean isChatAdmin;
+    private String userProfilePicLink;
 }
