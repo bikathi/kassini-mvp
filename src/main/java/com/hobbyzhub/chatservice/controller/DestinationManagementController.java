@@ -22,13 +22,14 @@ public class DestinationManagementController {
 	@PostMapping(value = "/create/group/{groupId}")
 	public ResponseEntity<?> createGroupDestination(@PathVariable String groupId) {
 		try {
-			Boolean result = destinationService.createGroupDestination(groupId);
-			do {
-				log.info("Successfully created group destination with id: {}", "group-" + groupId);
-				result = false;
-				
-				return new ResponseEntity<>(HttpStatus.OK);
-			} while(result == Boolean.TRUE);
+			boolean result = destinationService.createGroupDestination(groupId);
+			if(!result) {
+				log.error("Failed to create group destination");
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+			log.info("Successfully created group destination with id: {}", "group-" + groupId);
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch(Exception ex) {
 			log.error("Failed to create group destination caused by: {}", ex.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -38,13 +39,14 @@ public class DestinationManagementController {
 	@PostMapping(value = "/create/private/{userId}")
 	public ResponseEntity<?> createPrivateDestination(@PathVariable String userId) {
 		try {
-			Boolean result = destinationService.createPrivateDestination(userId);
-			do {
-				log.info("Successfully created private destination with id: {}", "user-" + userId);
-				result = false;
-				
-				return new ResponseEntity<>(HttpStatus.OK);
-			} while(result == Boolean.TRUE);
+			boolean result = destinationService.createPrivateDestination(userId);
+			if(!result) {
+				log.error("Failed to create private destination");
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+			log.info("Successfully created private destination with id: {}", "user-" + userId);
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch(Exception ex) {
 			log.error("Failed to create private destination caused by: {}", ex.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

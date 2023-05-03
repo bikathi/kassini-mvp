@@ -43,10 +43,10 @@ public class DestinationManagementService {
 			
 			convenienceMethods.storePrivateMessage(internalPrivateMessage);
 			log.info("JMSTemplate created new private destination of ID: {}", "user-" + userId);
-			return Boolean.TRUE;
+			return true;
 		} catch(Exception ex) {
 			log.error("JMSTemplate error creating private destination: {}", ex.getMessage());
-			return Boolean.FALSE;
+			return false;
 		}
 	}
 	
@@ -72,10 +72,10 @@ public class DestinationManagementService {
 			
 			convenienceMethods.storeGroupChatMessage(internalGroupMessage);
 			log.info("JMSTemplate created new group destination of ID: {}", "group-" + groupId);
-			return Boolean.TRUE;
+			return true;
 		} catch(Exception ex) {
 			log.error("JMSTemplate error creating group destination: {}", ex.getMessage());
-			return Boolean.FALSE;
+			return false;
 		}
 	}
 }
