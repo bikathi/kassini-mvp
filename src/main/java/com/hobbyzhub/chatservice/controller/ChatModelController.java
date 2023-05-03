@@ -157,7 +157,6 @@ public class ChatModelController {
                 "Error updating group name", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
             HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return null;
     }
 
     public ResponseEntity<?> addParticipantToChatModel() {
@@ -166,5 +165,21 @@ public class ChatModelController {
 
     public ResponseEntity<?> deleteParticipantFromChatModel() {
         return null;
+    }
+
+    @DeleteMapping(value = "/chat-model/delete/{chatModelId}")
+    public ResponseEntity<?> deleteEntireChatModel(@PathVariable String chatModelId) {
+        try {
+            chatModelService.deleteEntireChatModel(chatModelId);
+            log.info("Delete chat model with id {}", chatModelId);
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Successfully deleted chat model", HttpStatus.OK.value(), null),
+            HttpStatus.OK);
+        } catch(Exception ex) {
+            log.error("Error deleting group with groupId: {}. Caused by: {}", chatModelId, ex.getMessage());
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Error deleting group", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
+            HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
