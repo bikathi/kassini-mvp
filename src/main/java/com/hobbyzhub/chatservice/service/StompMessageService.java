@@ -18,9 +18,6 @@ public class StompMessageService {
 	JmsTemplate jmsTemplate;
 	
 	@Autowired
-	GroupMessageStoreService groupMessageStoreSevice;
-	
-	@Autowired
 	MessageStoreConvenienceMethods convenienceMethods;
 	
 	public Boolean sendPrivateMessage(String toUserId, PrivateMessageDTO message) {
@@ -32,8 +29,9 @@ public class StompMessageService {
                 deliverable.setText(jsonObj);
                 return deliverable;
             });
-            
-            convenienceMethods.addPrivateMessageToStore(message);
+
+            // then store it once we are sure it is on the queue
+            convenienceMethods.storePrivateMessage(message);
             return Boolean.TRUE;
         }
         catch (Exception ex) {
@@ -44,14 +42,16 @@ public class StompMessageService {
 	
 	public boolean sendGroupMessage(String toGroupId, GroupMessageDTO message) {
 		try {
+            // first send the message to the queue
             String jsonObj = new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(message);
             jmsTemplate.send("group-" + toGroupId, messageCreator -> {
                 TextMessage deliverable = messageCreator.createTextMessage();
                 deliverable.setText(jsonObj);
                 return deliverable;
             });
-            
-            convenienceMethods.addGroupMessageToStore(message);
+
+            // then store it once we know it's on the queue
+            convenienceMethods.storeGroupChatMessage(message);
             return Boolean.TRUE;
         }
         catch (Exception ex) {
