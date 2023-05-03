@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "chat-model-collection")
@@ -14,28 +15,35 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
+// TODO: REMEMBER TO ADD A CHAT ICON OPTION
 public class ChatModel implements Serializable {
     @Id
     private String chatId;
     private String chatName;
 
-    private String isGroupChat;
+    // this field will be empty for private chats
+    private String createdBy;
 
-    private List<ChatParticipants> chatParticipants;
-
+    private Boolean isGroupChat;
+    private List<ChatParticipants> chatParticipants = new ArrayList<>();
     private String latestMessage;
-}
 
+    public void addChatParticipant(ChatParticipants chatParticipant) {
+        this.chatParticipants.add(chatParticipant);
+    }
 
-@Getter
-@Setter
-@AllArgsConstructor
-class ChatParticipants {
-    private String userId;
-    private String userName;
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @Builder
+    public static class ChatParticipants {
+        private String userId;
+        private String userName;
 
-    // this is only for group chats. private chats have no admins
-    // so in group chats, this will be false
-    private Boolean isChatAdmin;
-    private String userProfilePicLink;
+        // this is only for group chats. private chats have no admins
+        // so in group chats, this will be false
+        private Boolean isChatAdmin;
+        private String userProfilePicLink;
+    }
 }
