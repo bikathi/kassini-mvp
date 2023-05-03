@@ -12,6 +12,7 @@ import java.io.Serializable;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class MessageModel implements Serializable {
     @Id
     private String chatId;
