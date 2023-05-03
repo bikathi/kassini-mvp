@@ -2,7 +2,7 @@ package com.hobbyzhub.chatservice.controller;
 
 import com.hobbyzhub.chatservice.entity.ChatModel;
 import com.hobbyzhub.chatservice.payload.request.NewGroupChatModelRequest;
-import com.hobbyzhub.chatservice.payload.request.NewPrivateChatModel;
+import com.hobbyzhub.chatservice.payload.request.NewPrivateChatModelRequest;
 import com.hobbyzhub.chatservice.payload.response.GenericServiceResponse;
 import com.hobbyzhub.chatservice.service.ChatModelService;
 import com.hobbyzhub.chatservice.service.DestinationManagementService;
@@ -13,9 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -83,7 +80,7 @@ public class ChatModelController {
 
     @PostMapping(value = "/private-chat/create")
     // TODO: COME COMPLETE THIS LATER
-    public ResponseEntity<?> newPrivateChatModel(@RequestBody NewPrivateChatModel newChatModelRequest) {
+    public ResponseEntity<?> newPrivateChatModel(@RequestBody NewPrivateChatModelRequest newChatModelRequest) {
         // TODO: REMEMBER TO FIX THIS PRIVATE CHAT ID PART
         String privateChatModelId = "";
 
@@ -139,7 +136,7 @@ public class ChatModelController {
         }
     }
 
-    public ResponseEntity<?> updateChatModelName() {
+    public ResponseEntity<?> updateGroupChatModelName() {
         return null;
     }
 
