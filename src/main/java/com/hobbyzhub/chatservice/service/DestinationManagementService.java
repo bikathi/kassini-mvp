@@ -41,7 +41,7 @@ public class DestinationManagementService {
                 return deliverable;
             });
 			
-			convenienceMethods.addPrivateMessageToStore(internalPrivateMessage);
+			convenienceMethods.storePrivateMessage(internalPrivateMessage);
 			log.info("JMSTemplate created new private destination of ID: {}", "user-" + userId);
 			return Boolean.TRUE;
 		} catch(Exception ex) {
@@ -70,7 +70,7 @@ public class DestinationManagementService {
 	            return deliverable;
 	        });
 			
-			convenienceMethods.addGroupMessageToStore(internalGroupMessage);
+			convenienceMethods.storeGroupChatMessage(internalGroupMessage);
 			log.info("JMSTemplate created new group destination of ID: {}", "group-" + groupId);
 			return Boolean.TRUE;
 		} catch(Exception ex) {
