@@ -1,7 +1,7 @@
 package com.hobbyzhub.chatservice.controller;
 
 import com.hobbyzhub.chatservice.entity.ChatModel;
-import com.hobbyzhub.chatservice.payload.request.AddChatParticipantRequest;
+import com.hobbyzhub.chatservice.payload.request.AddDelChatParticipantRequest;
 import com.hobbyzhub.chatservice.payload.request.NewGroupChatModelRequest;
 import com.hobbyzhub.chatservice.payload.request.NewPrivateChatModelRequest;
 import com.hobbyzhub.chatservice.payload.request.ChangeGroupChatModelNameRequest;
@@ -140,7 +140,7 @@ public class ChatModelController {
         }
     }
 
-    @PostMapping(value = "/group-chat/change-name")
+    @PatchMapping(value = "/group-chat/change-name")
     public ResponseEntity<?> updateGroupChatModelName(@RequestBody ChangeGroupChatModelNameRequest updateNameRequest) {
         Query findQuery = new Query().addCriteria(Criteria.where("chatId").is(updateNameRequest.getChatId()));
         Update updateDefinition = new Update().set("chatName", updateNameRequest.getNewName());
@@ -160,12 +160,12 @@ public class ChatModelController {
         }
     }
 
-    public ResponseEntity<?> addParticipantToChatModel(@RequestBody AddChatParticipantRequest addChatParticipantRequest) {
-        // find the document we want to update
+    @PutMapping(value = "/group-chat/add-member")
+    public ResponseEntity<?> addParticipantToChatModel(@RequestBody AddDelChatParticipantRequest addChatParticipantRequest) {
         Query findQuery = new Query().addCriteria(Criteria.where("chatId").is(addChatParticipantRequest.getChatId()));
         ChatModel.ChatParticipants newParticipant = ChatModel.ChatParticipants.builder()
             .userName(addChatParticipantRequest.getUserName())
-            .isChatAdmin(false)
+            .isChatAdmin(addChatParticipantRequest.getIsChatAdmin())
             .userId(addChatParticipantRequest.getUserId())
             .userProfilePicLink(addChatParticipantRequest.getUserProfilePicLink())
         .build();
@@ -186,8 +186,31 @@ public class ChatModelController {
         }
     }
 
-    public ResponseEntity<?> deleteParticipantFromChatModel() {
-        return null;
+    @DeleteMapping(value = "/group-chat/delete-member")
+    public ResponseEntity<?> deleteParticipantFromChatModel(@RequestBody AddDelChatParticipantRequest delChatParticipantRequest) {
+        Query findQuery = new Query().addCriteria(Criteria.where("chatId").is(delChatParticipantRequest.getChatId()));
+        ChatModel.ChatParticipants participantToRemove = ChatModel.ChatParticipants.builder()
+            .userName(delChatParticipantRequest.getUserName())
+            .isChatAdmin(delChatParticipantRequest.getIsChatAdmin())
+            .userId(delChatParticipantRequest.getUserId())
+            .userProfilePicLink(delChatParticipantRequest.getUserProfilePicLink())
+        .build();
+        Update updateDefinition = new Update().pull("chatParticipants", participantToRemove);
+
+        try {
+            chatModelService.deleteParticipantFromChatModel(findQuery, updateDefinition, ChatModel.class);
+            log.info("Deleted participantId: {} from groupId: {}",
+                    delChatParticipantRequest.getUserId(), delChatParticipantRequest.getChatId());
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Successfully added participant to chat group", HttpStatus.OK.value(), null),
+            HttpStatus.OK);
+        } catch(Exception ex) {
+            log.error("Error deleting participant from group with groupId: {}. Caused by: {}",
+                delChatParticipantRequest.getChatId(), ex.getMessage());
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Error deleting participant from group", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
+            HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping(value = "/chat-model/delete/{chatModelId}")
