@@ -1,6 +1,7 @@
 package com.hobbyzhub.chatservice.controller;
 
 import com.hobbyzhub.chatservice.entity.ChatModel;
+import com.hobbyzhub.chatservice.payload.request.AddChatParticipantRequest;
 import com.hobbyzhub.chatservice.payload.request.NewGroupChatModelRequest;
 import com.hobbyzhub.chatservice.payload.request.NewPrivateChatModelRequest;
 import com.hobbyzhub.chatservice.payload.request.ChangeGroupChatModelNameRequest;
@@ -159,8 +160,30 @@ public class ChatModelController {
         }
     }
 
-    public ResponseEntity<?> addParticipantToChatModel() {
-        return null;
+    public ResponseEntity<?> addParticipantToChatModel(@RequestBody AddChatParticipantRequest addChatParticipantRequest) {
+        // find the document we want to update
+        Query findQuery = new Query().addCriteria(Criteria.where("chatId").is(addChatParticipantRequest.getChatId()));
+        ChatModel.ChatParticipants newParticipant = ChatModel.ChatParticipants.builder()
+            .userName(addChatParticipantRequest.getUserName())
+            .isChatAdmin(false)
+            .userId(addChatParticipantRequest.getUserId())
+            .userProfilePicLink(addChatParticipantRequest.getUserProfilePicLink())
+        .build();
+        Update updateDefinition = new Update().push("chatParticipants", newParticipant);
+        FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions().returnNew(false).upsert(false);
+
+        try {
+            chatModelService.addParticipantToChatModel(findQuery, updateDefinition, findAndModifyOptions, ChatModel.class);
+            log.info("Added new participant to groupId: {}", addChatParticipantRequest.getChatId());
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Successfully added participant to chat group", HttpStatus.OK.value(), null),
+            HttpStatus.OK);
+        } catch (Exception ex) {
+            log.error("Error adding new participant to groupId: {}. Caused by: {}", addChatParticipantRequest.getChatId(), ex.getMessage());
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Error adding new participant to group chat", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
+            HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     public ResponseEntity<?> deleteParticipantFromChatModel() {
