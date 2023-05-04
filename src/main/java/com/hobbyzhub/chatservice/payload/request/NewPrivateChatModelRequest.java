@@ -9,7 +9,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class NewPrivateChatModel {
+public class NewPrivateChatModelRequest {
     private String fromUserId;
     private String fromUserName;
     private String fromUserProfilePicLink;
