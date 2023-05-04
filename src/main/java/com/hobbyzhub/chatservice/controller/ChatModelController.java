@@ -1,10 +1,7 @@
 package com.hobbyzhub.chatservice.controller;
 
 import com.hobbyzhub.chatservice.entity.ChatModel;
-import com.hobbyzhub.chatservice.payload.request.AddDelChatParticipantRequest;
-import com.hobbyzhub.chatservice.payload.request.NewGroupChatModelRequest;
-import com.hobbyzhub.chatservice.payload.request.NewPrivateChatModelRequest;
-import com.hobbyzhub.chatservice.payload.request.ChangeGroupChatModelNameRequest;
+import com.hobbyzhub.chatservice.payload.request.*;
 import com.hobbyzhub.chatservice.payload.response.GenericServiceResponse;
 import com.hobbyzhub.chatservice.service.ChatModelService;
 import com.hobbyzhub.chatservice.service.DestinationManagementService;
@@ -209,6 +206,30 @@ public class ChatModelController {
                 delChatParticipantRequest.getChatId(), ex.getMessage());
             return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Error deleting participant from group", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
+            HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PatchMapping("/group-chat/make-admin")
+    public ResponseEntity<?> makeParticipantChatAdmin(@RequestBody MakeUserAdminRequest makeUserAdminRequest) {
+        Query findQuery = new Query(
+            Criteria.where("chatId").is(makeUserAdminRequest.getGroupId())
+                .and("chatParticipants.userId").is(makeUserAdminRequest.getUserId())
+        );
+        Update updateDefinition = new Update()
+                .set("chatParticipants.$.isChatAdmin", true);
+
+        try {
+            chatModelService.makeParticipantAnAdmin(findQuery, updateDefinition, ChatModel.class);
+            log.info("Made participant of userId: {} into admin", makeUserAdminRequest.getUserId());
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Successfully made user a chat admin", HttpStatus.OK.value(), null),
+            HttpStatus.OK);
+        } catch(Exception ex) {
+            log.error("Error making userId: {} in groupId: {} an admin. Caused by: {}",
+                makeUserAdminRequest.getUserId(), makeUserAdminRequest.getGroupId(), ex.getMessage());
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Error making user an admin", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
             HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

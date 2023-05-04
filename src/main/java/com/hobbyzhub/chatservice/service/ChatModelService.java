@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class ChatModelService {
     @Autowired
@@ -28,11 +26,20 @@ public class ChatModelService {
         chatModelTemplate.findAndModify(query, updateDefinition, options, entityClass);
     }
 
-    private void addParticipantToChatModel() {
-
+    public void addParticipantToChatModel(
+        Query query, UpdateDefinition updateDefinition, FindAndModifyOptions options, Class entityClass) {
+        chatModelTemplate.findAndModify(query, updateDefinition, options, entityClass);
     }
 
-    private void deleteParticipantFromChatModel() {
+    public void makeParticipantAnAdmin(Query query, UpdateDefinition updateDefinition, Class entityClass) {
+        chatModelTemplate.updateFirst(query, updateDefinition, entityClass);
+    }
+
+    public void deleteParticipantFromChatModel(Query query, UpdateDefinition updateDefinition, Class entityClass) {
+        chatModelTemplate.updateFirst(query, updateDefinition, entityClass);
+    }
+
+    public void makeParticipantAdmin() {
 
     }
 
