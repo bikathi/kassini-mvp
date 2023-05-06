@@ -9,8 +9,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class AddChatParticipantRequest {
+public class AddDelChatParticipantRequest {
     private String chatId;
+    private Boolean isChatAdmin;
     private String userId;
     private String userName;
     private String userProfilePicLink;
