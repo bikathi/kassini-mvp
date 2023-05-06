@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/api")
 @Setter
@@ -230,6 +232,29 @@ public class ChatModelController {
                 makeUserAdminRequest.getUserId(), makeUserAdminRequest.getGroupId(), ex.getMessage());
             return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Error making user an admin", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
+            HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/group-chat/get-members/{chatId}")
+    public ResponseEntity<?> getPagedChatParticipants(
+        @PathVariable String chatId,
+        @RequestParam(defaultValue = "0") String page,
+        @RequestParam(defaultValue = "100", required = false) String size) {
+        Integer pageNumber = Integer.valueOf(page);
+        Integer pageSize = Integer.valueOf(size);
+
+        try {
+            List<ChatModel.ChatParticipants> chatParticipantsList = chatModelService.getPagedListOfParticipants(chatId, pageNumber, pageSize);
+
+            log.info("Gotten paged list of participants for chatId: {}", chatId);
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Gotten paged list of participants", HttpStatus.OK.value(), chatParticipantsList),
+            HttpStatus.OK);
+        } catch (Exception ex) {
+            log.error("Error getting paged list of participants for chatId: {}. Caused by: {}", chatId, ex.getMessage());
+            return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Error getting list of chat participants", HttpStatus.INTERNAL_SERVER_ERROR.value(), null),
             HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
