@@ -15,15 +15,15 @@ import java.io.Serializable;
 @Builder
 public class MessageModel implements Serializable {
     /**
-     * The id of the chat that the message belongs to
-     */
-    @Id
-    private String chatModelId;
-
-    /**
      * The id of the message
      */
+    @Id
     private String messageModelId;
+
+    /**
+     * The id of the chat that the message belongs to
+     */
+    private String chatModelId;
     private String messageString;
     private String fromUserId;
 
