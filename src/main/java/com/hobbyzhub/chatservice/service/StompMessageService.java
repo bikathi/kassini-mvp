@@ -33,9 +33,8 @@ public class StompMessageService {
             // then store it once we are sure it is on the queue
             convenienceMethods.storePrivateMessage(message);
             return Boolean.TRUE;
-        }
-        catch (Exception ex) {
-            log.error("Service encountered error trying to send private message: {}", ex.getMessage());
+        } catch (Exception ex) {
+            log.error("Encountered error trying to send private message: {}", ex.getMessage());
             return Boolean.FALSE;
         }
 	}
@@ -53,9 +52,8 @@ public class StompMessageService {
             // then store it once we know it's on the queue
             convenienceMethods.storeGroupChatMessage(message);
             return Boolean.TRUE;
-        }
-        catch (Exception ex) {
-        	log.error("Service encountered error trying to send group message: {}", ex.getMessage());
+        } catch (Exception ex) {
+        	log.error("Encountered error trying to send group message: {}", ex.getMessage());
             return Boolean.FALSE;
         }
 	}
