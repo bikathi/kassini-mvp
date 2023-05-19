@@ -38,8 +38,8 @@ public class ChatModelController {
 
     @PostMapping(value = "/group-chat/create")
     public ResponseEntity<?> newGroupChatModel(@RequestBody NewGroupChatModelRequest newGroupModelRequest) {
-        // TODO: REMEMBER TO FIX THIS GROUP CHAT ID PART
-        String groupChatModelId = "";
+        String groupChatModelId = String.format(
+            "%s-%s", newGroupModelRequest.getCreatedByUserId(), newGroupModelRequest.getChatName());
 
         // first create the proper chat model using details in the request payload
         ChatModel groupChatModel = ChatModel.builder()
@@ -84,10 +84,9 @@ public class ChatModelController {
     }
 
     @PostMapping(value = "/private-chat/create")
-    // TODO: COME COMPLETE THIS LATER
     public ResponseEntity<?> newPrivateChatModel(@RequestBody NewPrivateChatModelRequest newChatModelRequest) {
-        // TODO: REMEMBER TO FIX THIS PRIVATE CHAT ID PART
-        String privateChatModelId = "";
+        String privateChatModelId = String.format(
+            "%s-%s", newChatModelRequest.getFromUserId(), newChatModelRequest.getToUserId());
 
         // first create the proper chat model using details in the request payload
         ChatModel privateChatModel = ChatModel.builder()
