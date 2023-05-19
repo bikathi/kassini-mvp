@@ -14,8 +14,16 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class MessageModel implements Serializable {
+    /**
+     * The id of the chat that the message belongs to
+     */
     @Id
-    private String chatId;
+    private String chatModelId;
+
+    /**
+     * The id of the message
+     */
+    private String messageModelId;
     private String messageString;
     private String fromUserId;
 
