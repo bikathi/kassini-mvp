@@ -4,9 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @Slf4j
-public class ChatModelConvenienceMethods {
+public class ModelsConvenienceMethods {
     @Autowired
     private ChatModelService chatModelService;
 
@@ -21,6 +23,14 @@ public class ChatModelConvenienceMethods {
             return idOptionB;
         }
 
+        // should never return null
         return null;
+    }
+
+    public String createMessageModelId(String fromUserId) {
+        String randomUUID = UUID.randomUUID().toString()
+            .replace("-", "").substring(0, 12);
+
+        return String.format("%s-%s", randomUUID, fromUserId);
     }
 }
