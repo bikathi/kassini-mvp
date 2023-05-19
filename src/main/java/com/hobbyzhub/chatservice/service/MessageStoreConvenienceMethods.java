@@ -12,14 +12,21 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class MessageStoreConvenienceMethods {
     @Autowired
-    MessageModelRepository messageModelRepository;
+    private MessageModelRepository messageModelRepository;
+
+    @Autowired
+    private ModelsConvenienceMethods modelsConvenienceMethods;
 
     public void storePrivateMessage(PrivateMessageDTO privateMessageDTO) {
         // first convert the DTO to a MongoDB-Compatible message
         // the id of the message is manually generated
         MessageModel message = MessageModel.builder()
-            // TODO: FIGURE OUT CHAT ID FOR PRIVATE MESSAGES
-            .chatId("")
+            .chatModelId(modelsConvenienceMethods.checkIfChatModelExistsById(
+                privateMessageDTO.getFromUserId(), privateMessageDTO.getToUserId()
+            ))
+            .messageModelId(
+                modelsConvenienceMethods.createMessageModelId(privateMessageDTO.getFromUserId()
+            ))
             .messageString(privateMessageDTO.getMessage())
             .fromUserId(privateMessageDTO.getFromUserId())
             .toDestinationId(privateMessageDTO.getToUserId())
@@ -39,8 +46,10 @@ public class MessageStoreConvenienceMethods {
         // first convert the DTO to a MongoDB-Compatible message
         // the id of the message is manually generated
         MessageModel message = MessageModel.builder()
-            // TODO: FIGURE OUT CHAT ID FOR GROUP MESSAGES
-            .chatId("")
+            .chatModelId(groupMessageDTO.getToGroupId())
+            .messageModelId(
+                modelsConvenienceMethods.createMessageModelId(groupMessageDTO.getFromUserId())
+            )
             .messageString(groupMessageDTO.getMessage())
             .fromUserId(groupMessageDTO.getFromUserId())
             .toDestinationId(groupMessageDTO.getToGroupId())
