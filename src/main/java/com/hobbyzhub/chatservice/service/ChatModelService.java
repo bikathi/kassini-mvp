@@ -2,7 +2,6 @@ package com.hobbyzhub.chatservice.service;
 
 import com.hobbyzhub.chatservice.entity.ChatModel;
 import com.hobbyzhub.chatservice.repository.ChatModelRepository;
-import com.mongodb.client.model.geojson.LineString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -42,6 +41,16 @@ public class ChatModelService {
         chatModelTemplate.updateFirst(query, updateDefinition, entityClass);
     }
 
+    /**
+     * Checks whether a chat model already exists by a given ID, so we don't
+     * induce redundancy into the database
+     * @param chatModelId : is the actual id we want to search by
+     * @return : boolean true if the chat model exists by the id
+     */
+    public boolean chatModelExistsById(String chatModelId) {
+        return chatModelRepository.existsById(chatModelId);
+    }
+
     public void deleteParticipantFromChatModel(Query query, UpdateDefinition updateDefinition, Class entityClass) {
         chatModelTemplate.updateFirst(query, updateDefinition, entityClass);
     }
@@ -61,9 +70,7 @@ public class ChatModelService {
             AggregationResults<ChatModel.ChatParticipants> aggregationResults =
                 chatModelTemplate.aggregate(aggregationFunction, ChatModel.class, ChatModel.ChatParticipants.class);
 
-            List<ChatModel.ChatParticipants> requiredList = aggregationResults.getMappedResults();
-
-            return requiredList;
+            return aggregationResults.getMappedResults();
         } else {
             return new ArrayList<>();
         }
