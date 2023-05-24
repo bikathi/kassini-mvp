@@ -16,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 
-// TODO : REMEMBER TO ADD A CHAT ICON OPTION FOR GROUP CHATS
 public class ChatModel implements Serializable {
     @Id
     private String chatId;
@@ -24,6 +23,9 @@ public class ChatModel implements Serializable {
 
     // this field will be empty for private chats
     private String createdBy;
+
+    // group chat icon
+    private String groupChatIconLink;
 
     private Boolean isGroupChat;
     private List<ChatParticipants> chatParticipants = new ArrayList<>();
