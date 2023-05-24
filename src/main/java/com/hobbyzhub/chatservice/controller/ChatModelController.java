@@ -1,6 +1,7 @@
 package com.hobbyzhub.chatservice.controller;
 
 import com.hobbyzhub.chatservice.entity.ChatModel;
+import com.hobbyzhub.chatservice.feign.MediaServiceFeign;
 import com.hobbyzhub.chatservice.payload.request.*;
 import com.hobbyzhub.chatservice.payload.response.GenericServiceResponse;
 import com.hobbyzhub.chatservice.service.ChatModelService;
@@ -30,6 +31,9 @@ public class ChatModelController {
     @Autowired
     DestinationManagementService destinationService;
 
+    @Autowired
+    private MediaServiceFeign mediaServiceFeign;
+
     @Value("${service.api.version}")
     private String apiVersion;
 
@@ -46,6 +50,7 @@ public class ChatModelController {
             .chatId(groupChatModelId)
             .chatName(newGroupModelRequest.getChatName())
             .createdBy(newGroupModelRequest.getCreateByUserName())
+            .groupChatIconLink(newGroupModelRequest.getGroupChatIconLink())
             .isGroupChat(true)
         .build();
 
@@ -67,6 +72,10 @@ public class ChatModelController {
             boolean destinationCreated = destinationService.createGroupDestination(groupChatModelId);
             if(!destinationCreated) {
                 log.warn("Created group but failed to create message destination");
+
+                // also create the location for storing group chat media
+                mediaServiceFeign.createNewChatStorageLocation(groupChatModelId);
+
                 return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
                     "Failed to create group messages destination", HttpStatus.PARTIAL_CONTENT.value(), null),
                 HttpStatus.PARTIAL_CONTENT);
@@ -263,6 +272,10 @@ public class ChatModelController {
         try {
             chatModelService.deleteEntireChatModel(chatModelId);
             log.info("Delete chat model with id {}", chatModelId);
+
+            // also delete storage location for chat model
+            mediaServiceFeign.deleteChatStorageLocation(chatModelId);
+
             return new ResponseEntity<>(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Successfully deleted chat model", HttpStatus.OK.value(), null),
             HttpStatus.OK);
