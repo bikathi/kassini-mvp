@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface AppUserRepository extends MongoRepository<AppUser, String> {
     // a custom method to find user details of whoever's logging in by their email
     Optional<AppUser> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }
