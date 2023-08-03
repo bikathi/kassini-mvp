@@ -6,13 +6,6 @@ spring:
   data:
     mongodb:
       uri: mongodb://127.0.0.1:27017/hobbyz_hub_database
-  datasource:
-    url: jdbc:mysql://localhost:3306/hobbyz_hub_schema?useSSL=false
-    username: root
-    password: rootUser@123
-  jpa:
-    hibernate:
-      ddl-auto: update
   application:
     name: chat-service
 
@@ -21,5 +14,8 @@ service:
     version: 0.0.1
   organization:
     name: Tropic World Paradise
+  security:
+    secret: sampleSecret
+    expirationMS: 3600 # token expires in 1hr after issuing
 server:
   port: 9101
