@@ -1,6 +1,5 @@
 package npc.kassinimvp.service;
 
-import npc.kassinimvp.dto.GroupMessageDTO;
 import npc.kassinimvp.dto.PrivateMessageDTO;
 import npc.kassinimvp.entity.MessageModel;
 import npc.kassinimvp.repository.MessageModelRepository;
@@ -39,29 +38,6 @@ public class MessageStoreConvenienceMethods {
             "Stored private from UserId {} to UserId {}",
             privateMessageDTO.getFromUserId(),
             privateMessageDTO.getToUserId()
-        );
-    }
-
-    public void storeGroupChatMessage(GroupMessageDTO groupMessageDTO) {
-        // first convert the DTO to a MongoDB-Compatible message
-        // the id of the message is manually generated
-        MessageModel message = MessageModel.builder()
-            .chatModelId(groupMessageDTO.getToGroupId())
-            .messageModelId(
-                modelsConvenienceMethods.createMessageModelId(groupMessageDTO.getFromUserId())
-            )
-            .messageString(groupMessageDTO.getMessage())
-            .fromUserId(groupMessageDTO.getFromUserId())
-            .toDestinationId(groupMessageDTO.getToGroupId())
-            .dateTimeSent(groupMessageDTO.getDateSent())
-        .build();
-
-        // then store the messages in the MessageStore
-        messageModelRepository.save(message);
-        log.info(
-            "Stored private from UserId {} to GroupId {}",
-            groupMessageDTO.getFromUserId(),
-            groupMessageDTO.getToGroupId()
         );
     }
 }

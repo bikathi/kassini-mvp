@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MessageModelRepository extends MongoRepository<MessageModel, String> {
     /**
-     * A custom method to help find the list of messages for a particular chatId
+     * A custom method to help find the list of messages for a particular chat by the chatModelId
      */
-    Page<MessageModel> findAllByChatId(String chatId, Pageable page);
+    Page<MessageModel> findAllByChatModelId(String chatId, Pageable page);
 }

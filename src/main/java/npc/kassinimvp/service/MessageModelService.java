@@ -15,6 +15,6 @@ public class MessageModelService {
 
     public Page<MessageModel> getPagedMessageList(Integer pageSize, Integer pageNumber, String chatId) {
         Pageable page = PageRequest.of(pageNumber, pageSize);
-        return messageModelRepository.findAllByChatId(chatId, page);
+        return messageModelRepository.findAllByChatModelId(chatId, page);
     }
 }
