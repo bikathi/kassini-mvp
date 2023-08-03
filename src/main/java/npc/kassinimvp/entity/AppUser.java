@@ -1,10 +1,16 @@
 package npc.kassinimvp.entity;
 
 
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "app-users")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class AppUser {
     @Id
     private String userId;
@@ -13,5 +19,5 @@ public class AppUser {
     private String email;
 
     private String password;
-    private String phoneNumber;
+    private Integer phoneNumber;
 }
