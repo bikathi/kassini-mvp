@@ -1,4 +1,4 @@
-package npc.kassinimvp.service;
+package npc.kassinimvp.security.service;
 
 import npc.kassinimvp.entity.AppUser;
 import npc.kassinimvp.repository.AppUserRepository;
