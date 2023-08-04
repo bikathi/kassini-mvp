@@ -5,6 +5,9 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Document(collection = "app-users")
 @Getter
 @Setter
@@ -17,7 +20,10 @@ public class AppUser {
     private String firstName;
     private String lastName;
     private String email;
-
+    private Set<AppRoles> userRoles = new HashSet<>();
+    private Location userLocation;
     private String password;
     private Long phoneNumber;
 }
+
+

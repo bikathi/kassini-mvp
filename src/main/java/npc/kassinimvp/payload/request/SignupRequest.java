@@ -2,6 +2,9 @@ package npc.kassinimvp.payload.request;
 
 import lombok.*;
 
+import java.util.Set;
+import npc.kassinimvp.entity.Location;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,4 +16,8 @@ public class SignupRequest {
     private String email;
     private String password;
     private Long phoneNumber;
+    private Location location;
+    private Set<String> roles;
 }
+
+
