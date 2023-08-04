@@ -19,5 +19,5 @@ public class AppUser {
     private String email;
 
     private String password;
-    private Integer phoneNumber;
+    private Long phoneNumber;
 }

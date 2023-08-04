@@ -1,15 +1,16 @@
 package npc.kassinimvp.security.jwt;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import npc.kassinimvp.security.service.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 @Slf4j
@@ -19,10 +20,10 @@ public class JwtUtils {
     private String jwtSecret;
 
     @Value("${service.security.expirationMS}")
-    private String jwtExpirationMS;
+    private Long jwtExpirationMS;
 
     private Key key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        return Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret));
     }
 
     public String getUserEmailFromJwtToken(String authToken) {

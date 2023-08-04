@@ -11,10 +11,10 @@ public class UserDetailsImpl implements UserDetails {
     private String lastName;
     private String email;
     private String password;
-    private Integer phoneNumber;
+    private Long phoneNumber;
 
     // custom constructors
-    public UserDetailsImpl(String firstName, String lastName, String email, String password, Integer phoneNumber) {
+    public UserDetailsImpl(String firstName, String lastName, String email, String password, Long phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -62,7 +62,7 @@ public class UserDetailsImpl implements UserDetails {
         return true;
     }
 
-    public int getPhoneNumber() {
+    public long getPhoneNumber() {
         return phoneNumber;
     }
 

@@ -54,7 +54,7 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication;
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String authToken = jwtUtils.generateJwtToken(authentication);
 
         return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
@@ -83,7 +83,7 @@ public class AuthController {
         appUserService.createNewUserAccount(newUser);
 
         return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
-            "Successfully signed up user", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Successfully signed up user")));
+            "Successfully signed up user", HttpStatus.OK.value(), new MessageResponse("Successfully signed up user")));
     }
 
     private String generateUserId() {

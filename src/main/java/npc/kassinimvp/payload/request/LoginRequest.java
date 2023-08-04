@@ -1,12 +1,12 @@
 package npc.kassinimvp.payload.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@ToString
+@NoArgsConstructor
 public class LoginRequest {
     private String email;
     private String password;
