@@ -1,7 +1,9 @@
 package npc.kassinimvp.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import npc.kassinimvp.entity.AppRoles;
 import npc.kassinimvp.entity.AppUser;
+import npc.kassinimvp.entity.Location;
 import npc.kassinimvp.payload.request.LoginRequest;
 import npc.kassinimvp.payload.request.SignupRequest;
 import npc.kassinimvp.payload.response.GenericServiceResponse;
@@ -21,6 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -56,10 +61,18 @@ public class AuthController {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String authToken = jwtUtils.generateJwtToken(authentication);
+        Set<String> userRoles = new HashSet<>();
+        userDetails.getAuthorities().forEach(grantedAuthority -> {
+            if(Objects.equals(grantedAuthority.getAuthority(), "ROLE_VENDOR")) {
+                userRoles.add("vendor");
+            } else if(Objects.equals(grantedAuthority.getAuthority(), "ROLE_BUYER")) {
+                userRoles.add("buyer");
+            }
+        });
 
         return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
             "Successfully signed in user", HttpStatus.OK.value(), new LoginResponse(
-                userDetails.getUsername(), userDetails.getEmail(), userDetails.getPhoneNumber(), authToken
+                userDetails.getUsername(), userDetails.getEmail(), userDetails.getPhoneNumber(), authToken, userDetails.getLocation(), userRoles
         )));
     }
 
@@ -71,11 +84,21 @@ public class AuthController {
                 "Email is already in use", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Email is already In Use")));
         }
 
+        Set<AppRoles> userRoles = new HashSet<>();
+        signupRequest.getRoles().forEach(role -> {
+            switch (role) {
+                case "vendor" -> userRoles.add(AppRoles.ROLE_VENDOR);
+                case "buyer" -> userRoles.add(AppRoles.ROLE_BUYER);
+            }
+        });
+
         AppUser newUser = new AppUser(
             generateUserId(),
             signupRequest.getFirstName(),
             signupRequest.getLastName(),
             signupRequest.getEmail(),
+            userRoles,
+            new Location(signupRequest.getLocation().getCounty(), signupRequest.getLocation().getConstituency()),
             passwordEncoder.encode(signupRequest.getPassword()),
             signupRequest.getPhoneNumber()
         );
