@@ -5,7 +5,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
-import npc.kassinimvp.dto.GroupMessageDTO;
 import npc.kassinimvp.dto.PrivateMessageDTO;
 import npc.kassinimvp.service.StompMessageService;
 
@@ -34,26 +33,6 @@ public class StompMessageController {
 				"Failed to send private message fromUserId: {} toUserId: {}",
 				messagePayload.getFromUserId(),
 				messagePayload.getToUserId()
-			);
-		}
-	}
-	
-	@MessageMapping("/group")
-	public void groupMessage(@Payload GroupMessageDTO messagePayload) {
-		String toGroupId = messagePayload.getToGroupId();
-		
-		boolean result = stompMessageService.sendGroupMessage(toGroupId, messagePayload);
-		if(result == Boolean.TRUE) {
-			log.info(
-				"Successfully sent group message fromUserId: {} toGroupId: {}", 
-				messagePayload.getFromUserId(),
-				messagePayload.getToGroupId()
-			);
-		} else {
-			log.error(
-				"Failed to send group message fromUserId: {} toGroupId: {}",
-				messagePayload.getFromUserId(),
-				messagePayload.getToGroupId()
 			);
 		}
 	}

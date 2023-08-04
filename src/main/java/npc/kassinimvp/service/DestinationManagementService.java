@@ -7,7 +7,6 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import npc.kassinimvp.dto.GroupMessageDTO;
 import npc.kassinimvp.dto.PrivateMessageDTO;
 
 import jakarta.jms.TextMessage;
@@ -46,35 +45,6 @@ public class DestinationManagementService {
 			return true;
 		} catch(Exception ex) {
 			log.error("JMSTemplate error creating private destination: {}", ex.getMessage());
-			return false;
-		}
-	}
-	
-	public boolean createGroupDestination(String groupId) {
-		try {
-			String dateToday = LocalDate.now().toString();
-			GroupMessageDTO internalGroupMessage = 
-				GroupMessageDTO.builder()
-				.fromUserId("Hobbyzub")
-				.toGroupId(groupId)
-				.message("Group Created On: " + dateToday)
-				.dateSent(dateToday)
-				.build();
-			
-			String internalMessage = new ObjectMapper().writer().withDefaultPrettyPrinter()
-				.writeValueAsString(internalGroupMessage);
-			
-			jmsTemplate.send("group-" + groupId, messageCreator -> {
-	            TextMessage deliverable = messageCreator.createTextMessage();
-	            deliverable.setText(internalMessage);
-	            return deliverable;
-	        });
-			
-			convenienceMethods.storeGroupChatMessage(internalGroupMessage);
-			log.info("JMSTemplate created new group destination of ID: {}", "group-" + groupId);
-			return true;
-		} catch(Exception ex) {
-			log.error("JMSTemplate error creating group destination: {}", ex.getMessage());
 			return false;
 		}
 	}

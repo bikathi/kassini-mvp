@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "chat-model-collection")
+@Document(collection = "chat-list")
 @Getter
 @Setter
 @ToString

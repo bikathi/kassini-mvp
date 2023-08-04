@@ -5,14 +5,7 @@ spring:
     password: admin
   data:
     mongodb:
-      uri: mongodb://127.0.0.1:27017/hobbyz_hub_database
-  datasource:
-    url: jdbc:mysql://localhost:3306/hobbyz_hub_schema?useSSL=false
-    username: root
-    password: rootUser@123
-  jpa:
-    hibernate:
-      ddl-auto: update
+      uri: mongodb://127.0.0.1:27017/kassinimvp
   application:
     name: chat-service
 
@@ -20,6 +13,9 @@ service:
   api:
     version: 0.0.1
   organization:
-    name: Tropic World Paradise
+    name: Kassini MVP
+  security:
+    secret: LgFRkEdNkP4dUFYxlc4aT4J2rZ8JeEf9wNpC0gU2Qcw9LRM4kgVcvNvUTcv6rhPw
+    expirationMS: 3600000 # token expires in 1hr after issuing
 server:
   port: 9101
