@@ -16,7 +16,7 @@ public class ProductPost {
     private String postId;
     private String vendorId;
     private Product product;
-    private LocalDate dateOfPost;
+    private String dateOfPost;
     // this here is the number of people who showed interest in this product - this will act as our 'likes'
     private Integer numberOfEngagements;
     private Boolean sold; // by default is false
