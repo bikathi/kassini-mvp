@@ -109,6 +109,7 @@ public class ProductPostController {
         // change the post status
         try {
             postService.updateProductStatus(postId);
+            log.info("User {} updated status of post {} to sold", userDetails().getUserId(), postId);
             return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Successfully updated posts status", HttpStatus.OK.value(), new MessageResponse("Post status updated successfully")));
         } catch(Exception ex) {
@@ -119,7 +120,8 @@ public class ProductPostController {
     }
 
     @GetMapping(value = "/product-list")
-    public ResponseEntity<?> getProductPostsList() {
+    @PreAuthorize("hasAuthority('ROLE_VENDOR')")
+    public ResponseEntity<?> getProductPostsList(@RequestParam String postId) {
         // this endpoint will cleverly handle both getting list of all available posts and the list of the
         // posts belonging to a certain userId
         return null;
@@ -127,7 +129,24 @@ public class ProductPostController {
 
     @DeleteMapping(value = "/delete-post")
     public ResponseEntity<?> deleteProductPost(@RequestParam String postId) {
-        return null;
+        // confirm that the post actually exists
+        boolean postExists = postService.postExistsById(postId);
+        if(!postExists) {
+            return ResponseEntity.badRequest().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Post does not exist", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Invalid post ID")));
+        }
+
+        // simply delete the post and return the response
+        try {
+            postService.deletePostById(postId);
+            log.info("User {} deleted post of ID {}", userDetails().getUserId(), postId);
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                    "Successfully deleted post", HttpStatus.OK.value(), new MessageResponse("Post deleted successfully")));
+        } catch(Exception ex) {
+            log.error("Failed when deleting post. Details: {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Server experienced an error. Please try again", HttpStatus.INTERNAL_SERVER_ERROR.value(), new MessageResponse("Failed to delete post")));
+        }
     }
 
     private String generatePostId() {

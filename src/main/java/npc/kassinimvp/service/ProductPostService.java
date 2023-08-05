@@ -42,4 +42,8 @@ public class ProductPostService {
         FindAndModifyOptions updateOptions = new FindAndModifyOptions().returnNew(false).upsert(false);
         mongoTemplate.findAndModify(query, updateDefinition, updateOptions, ProductPost.class);
     }
+
+    public void deletePostById(String postId) {
+        productPostsRepository.deletePostByPostId(postId);
+    }
 }
