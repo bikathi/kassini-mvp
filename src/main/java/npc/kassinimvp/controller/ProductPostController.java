@@ -80,7 +80,7 @@ public class ProductPostController {
         boolean postExists = postService.postExistsById(postId);
         if(!postExists) {
             return ResponseEntity.badRequest().body(new GenericServiceResponse<>(apiVersion, organizationName,
-                "Server experienced an error. Please try again", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Invalid post ID")));
+                "Post does not exist", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Invalid post ID")));
         }
 
         // save the post and return a response to the user
@@ -92,27 +92,41 @@ public class ProductPostController {
         } catch(Exception ex) {
             log.error("Failed when updating post. Details: {}", ex.getMessage());
             return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
-                "Server experienced an error. Please try again", HttpStatus.INTERNAL_SERVER_ERROR.value(), new MessageResponse("Failed to create new product post")));
+                "Server experienced an error. Please try again", HttpStatus.INTERNAL_SERVER_ERROR.value(), new MessageResponse("Failed to create update post")));
         }
     }
 
     @PatchMapping(value = "/status-update")
-    public ResponseEntity<?> updateProductStatus() {
-        return null;
+    @PreAuthorize("hasAuthority('ROLE_VENDOR')")
+    public ResponseEntity<?> updateProductStatus(@RequestParam String postId) {
+        // confirm that the post actually exists
+        boolean postExists = postService.postExistsById(postId);
+        if(!postExists) {
+            return ResponseEntity.badRequest().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Post does not exist", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Invalid post ID")));
+        }
+
+        // change the post status
+        try {
+            postService.updateProductStatus(postId);
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Successfully updated posts status", HttpStatus.OK.value(), new MessageResponse("Post status updated successfully")));
+        } catch(Exception ex) {
+            log.error("Failed when updating post status. Details: {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Server experienced an error. Please try again", HttpStatus.INTERNAL_SERVER_ERROR.value(), new MessageResponse("Failed to create new product post")));
+        }
     }
 
     @GetMapping(value = "/product-list")
     public ResponseEntity<?> getProductPostsList() {
-        return null;
-    }
-
-    @GetMapping(value = "/find-product")
-    public ResponseEntity<?> findProductPost() {
+        // this endpoint will cleverly handle both getting list of all available posts and the list of the
+        // posts belonging to a certain userId
         return null;
     }
 
     @DeleteMapping(value = "/delete-post")
-    public ResponseEntity<?> deleteProductPost() {
+    public ResponseEntity<?> deleteProductPost(@RequestParam String postId) {
         return null;
     }
 

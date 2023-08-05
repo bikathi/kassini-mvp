@@ -31,7 +31,15 @@ public class ProductPostService {
         Query query = new Query(Criteria.where("postId").is(postId));
         Update updateDefinition = new Update().set("product", updatePostRequest);
 
-        FindAndModifyOptions updateOptions =new FindAndModifyOptions().returnNew(true).upsert(false);
+        FindAndModifyOptions updateOptions = new FindAndModifyOptions().returnNew(true).upsert(false);
         return mongoTemplate.findAndModify(query, updateDefinition, updateOptions, ProductPost.class);
+    }
+
+    public void updateProductStatus(String postId) {
+        Query query = new Query(Criteria.where("postId").is(postId));
+        Update updateDefinition = new Update().set("sold", true);
+
+        FindAndModifyOptions updateOptions = new FindAndModifyOptions().returnNew(false).upsert(false);
+        mongoTemplate.findAndModify(query, updateDefinition, updateOptions, ProductPost.class);
     }
 }
