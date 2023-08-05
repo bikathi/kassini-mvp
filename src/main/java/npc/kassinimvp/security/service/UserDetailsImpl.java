@@ -1,5 +1,6 @@
 package npc.kassinimvp.security.service;
 
+import lombok.ToString;
 import npc.kassinimvp.entity.AppUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,9 +8,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import npc.kassinimvp.entity.Location;
 
+@ToString
 public class UserDetailsImpl implements UserDetails {
     private String userId;
     private String firstName;
@@ -94,5 +97,15 @@ public class UserDetailsImpl implements UserDetails {
 
     public String getUserId() {
         return userId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        UserDetailsImpl user = (UserDetailsImpl) o;
+        return Objects.equals(userId, user.userId);
     }
 }
