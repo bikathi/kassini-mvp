@@ -2,6 +2,7 @@ package npc.kassinimvp.entity.definitions;
 
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -12,5 +13,5 @@ import java.util.List;
 public class Product {
     private String productName;
     private Integer productCost;
-    private List<String> imageLinks;
+    private List<String> imageLinks = new ArrayList<>();
 }
