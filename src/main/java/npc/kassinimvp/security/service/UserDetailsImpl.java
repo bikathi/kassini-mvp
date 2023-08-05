@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import npc.kassinimvp.entity.Location;
 
 public class UserDetailsImpl implements UserDetails {
-
+    private String userId;
     private String firstName;
     private String lastName;
     private String email;
@@ -21,7 +21,10 @@ public class UserDetailsImpl implements UserDetails {
     private Location location;
 
     // custom constructors
-    public UserDetailsImpl(String firstName, String lastName, String email, String password, Long phoneNumber, Collection<? extends GrantedAuthority> authorities, Location location) {
+    public UserDetailsImpl(
+        String firstName, String lastName, String email, String password, Long phoneNumber, Collection<? extends GrantedAuthority> authorities, Location location,
+        String userId
+    ) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -29,6 +32,7 @@ public class UserDetailsImpl implements UserDetails {
         this.phoneNumber = phoneNumber;
         this.authorities = authorities;
         this.location = location;
+        this.userId = userId;
     }
 
     public static UserDetailsImpl build(AppUser user) {
@@ -37,7 +41,7 @@ public class UserDetailsImpl implements UserDetails {
             role -> new SimpleGrantedAuthority(role.name())
         ).collect(Collectors.toList());
         return new UserDetailsImpl(
-            user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), authorities, user.getUserLocation()
+            user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), authorities, user.getUserLocation(), user.getUserId()
         );
     }
 
@@ -86,5 +90,9 @@ public class UserDetailsImpl implements UserDetails {
 
     public Location getLocation() {
         return location;
+    }
+
+    public String getUserId() {
+        return userId;
     }
 }
