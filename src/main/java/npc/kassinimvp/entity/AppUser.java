@@ -2,6 +2,8 @@ package npc.kassinimvp.entity;
 
 
 import lombok.*;
+import npc.kassinimvp.entity.definitions.AppRoles;
+import npc.kassinimvp.entity.definitions.Location;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 

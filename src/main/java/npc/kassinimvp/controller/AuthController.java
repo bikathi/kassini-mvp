@@ -1,9 +1,9 @@
 package npc.kassinimvp.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import npc.kassinimvp.entity.AppRoles;
+import npc.kassinimvp.entity.definitions.AppRoles;
 import npc.kassinimvp.entity.AppUser;
-import npc.kassinimvp.entity.Location;
+import npc.kassinimvp.entity.definitions.Location;
 import npc.kassinimvp.payload.request.LoginRequest;
 import npc.kassinimvp.payload.request.SignupRequest;
 import npc.kassinimvp.payload.response.GenericServiceResponse;
