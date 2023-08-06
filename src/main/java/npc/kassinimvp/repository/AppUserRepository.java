@@ -13,4 +13,6 @@ public interface AppUserRepository extends MongoRepository<AppUser, String> {
 
     boolean existsByEmail(String email);
     boolean existsByBioName(String bioName);
+
+    Optional<AppUser> findByBioName(String bioName);
 }
