@@ -3,7 +3,7 @@ package npc.kassinimvp.payload.request;
 import lombok.*;
 
 import java.util.Set;
-import npc.kassinimvp.entity.Location;
+import npc.kassinimvp.entity.definitions.Location;
 
 @Getter
 @Setter

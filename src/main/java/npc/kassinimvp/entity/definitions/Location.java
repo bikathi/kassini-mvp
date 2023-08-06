@@ -1,4 +1,4 @@
-package npc.kassinimvp.entity;
+package npc.kassinimvp.entity.definitions;
 
 import lombok.*;
 

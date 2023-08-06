@@ -36,7 +36,7 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
         if(authException.getClass() == InsufficientAuthenticationException.class) {
             GenericServiceResponse<MessageResponse> permissionsResponse = new GenericServiceResponse<>(apiVersion, organizationName,
-                "Forbidden", HttpStatus.FORBIDDEN.value(), new MessageResponse("Insufficient permissions to make this request"));
+                "Forbidden", HttpStatus.FORBIDDEN.value(), new MessageResponse("Insufficient permissions or invalid token for this request"));
 
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             mapper.writeValue(response.getOutputStream(), permissionsResponse);
