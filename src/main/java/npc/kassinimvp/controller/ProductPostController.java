@@ -1,13 +1,11 @@
 package npc.kassinimvp.controller;
 
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import npc.kassinimvp.entity.ProductPost;
 import npc.kassinimvp.entity.definitions.Product;
 import npc.kassinimvp.payload.request.CreateProductPostRequest;
 import npc.kassinimvp.payload.request.UpdateProductPostRequest;
 import npc.kassinimvp.payload.response.GenericServiceResponse;
-import npc.kassinimvp.payload.response.LoginResponse;
 import npc.kassinimvp.payload.response.MessageResponse;
 import npc.kassinimvp.security.service.UserDetailsImpl;
 import npc.kassinimvp.service.ProductPostService;
@@ -23,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -118,6 +117,27 @@ public class ProductPostController {
             log.error("Failed when updating post status. Details: {}", ex.getMessage());
             return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Server experienced an error. Please try again", HttpStatus.INTERNAL_SERVER_ERROR.value(), new MessageResponse("Failed to create new product post")));
+        }
+    }
+
+    @GetMapping(value = "/get-details")
+    @PreAuthorize("hasAuthority('ROLE_VENDOR') or hasAuthority('ROLE_BUYER')")
+    public ResponseEntity<?> getPostDetails(@RequestParam String postId) {
+        try {
+            Optional<ProductPost> postDetails = postService.findPostById(postId);
+
+            if(postDetails.isEmpty()) {
+                log.info("Post details for invalid post {} do not exist", postId);
+                return ResponseEntity.badRequest().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                    "Post details not found", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Invalid or non-existent post ID")));
+            }
+
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                    "Post details found", HttpStatus.OK.value(), postDetails.get()));
+        } catch(Exception ex) {
+            log.error("Failed when getting post details. Details: {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Server experienced an error. Please try again", HttpStatus.INTERNAL_SERVER_ERROR.value(), new MessageResponse("Failed to get post details")));
         }
     }
 

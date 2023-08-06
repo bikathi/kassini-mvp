@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
+
 @Service
 public class ProductPostService {
     @Autowired
@@ -53,6 +55,10 @@ public class ProductPostService {
     public boolean checkIfVendorHasPosts(String vendorId) {
         Query query = new Query(Criteria.where("vendorId").is(vendorId));
         return mongoTemplate.exists(query, ProductPost.class, "product-posts");
+    }
+
+    public Optional<ProductPost> findPostById(String postId) {
+        return productPostsRepository.findByPostId(postId);
     }
 
     public Page<ProductPost> findPostsByVendorId(String vendorId, Integer pageSize, Integer pageNumber) {

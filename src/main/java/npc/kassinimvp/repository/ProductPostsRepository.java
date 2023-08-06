@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ProductPostsRepository extends MongoRepository<ProductPost, String> {
     boolean existsByPostId(String postId);
@@ -20,4 +22,9 @@ public interface ProductPostsRepository extends MongoRepository<ProductPost, Str
      * A custom method to find posts generally in a page
      */
     Page<ProductPost> findAll(Pageable page);
+
+    /**
+     * A custom method to find a post by its id
+     */
+    Optional<ProductPost> findByPostId(String postId);
 }
