@@ -3,6 +3,7 @@ package npc.kassinimvp.controller;
 import lombok.extern.slf4j.Slf4j;
 import npc.kassinimvp.entity.AccountingRecord;
 import npc.kassinimvp.entity.definitions.BuyerDetails;
+import npc.kassinimvp.payload.request.NewAnonTransactionRequest;
 import npc.kassinimvp.payload.request.RecordTransactionRequest;
 import npc.kassinimvp.payload.response.GenericServiceResponse;
 import npc.kassinimvp.payload.response.MessageResponse;
@@ -36,9 +37,6 @@ public class AccountingRecordsController {
     @PostMapping(value = "/new-transaction")
     @PreAuthorize("hasAuthority('ROLE_VENDOR')")
     public ResponseEntity<?> recordNewTransaction(@RequestBody RecordTransactionRequest newTransactionRequest) {
-        // mark the postId as status true
-        postService.updateProductStatus(newTransactionRequest.getPostId());
-
         // fashion up the AccountingRecord
         String transactionId = generateTransactionID();
         AccountingRecord transactionRecord = new AccountingRecord(
@@ -59,23 +57,60 @@ public class AccountingRecordsController {
         try {
             transactionsService.saveNewTransaction(transactionRecord);
             log.info("Saved new transaction record id {} for vendor {}", transactionId, newTransactionRequest.getToUserId());
+
+            // mark the postId as status true
+            postService.updateProductStatus(newTransactionRequest.getPostId());
+            log.info("Updated status of post {} to true", newTransactionRequest.getPostId());
+
             return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
-                "Successfully saved new transaction", HttpStatus.OK.value(), new MessageResponse("Successfully signed up user")));
+                "Successfully saved new transaction", HttpStatus.OK.value(), new MessageResponse("Successfully saved new transaction")));
         } catch(Exception ex) {
             log.error("Server experienced error saving transaction record for vendor {}", newTransactionRequest.getToUserId());
             return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(
-                    apiVersion,
-                    organizationName,
-            "Server experienced an error saving transaction record.",
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    new MessageResponse("Server experienced an error. Please try again")));
+                apiVersion,
+                organizationName,
+        "Server experienced an error saving transaction record.",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                new MessageResponse("Server experienced an error. Please try again")));
         }
     }
 
+    /**
+     * These are transactions outside the scope of the application
+     */
     @PostMapping(value = "/anon-transaction")
-    @PreAuthorize("hasAuthority('ROLE_VENDOR')")
-    public ResponseEntity<?> recordAnonymousTransaction() {
-        return null;
+    @PreAuthorize("hasAuthority('ROLE_VENDOR') or hasAuthority('ROLE_BUYER')")
+    public ResponseEntity<?> recordAnonymousTransaction(@RequestBody NewAnonTransactionRequest anonTransactionRequest) {
+        // fashion up the AccountingRecord
+        String transactionId = generateTransactionID();
+        AccountingRecord transactionRecord = new AccountingRecord(
+            transactionId,
+            null,
+            anonTransactionRequest.getDateOfTransaction(),
+            anonTransactionRequest.getTransactionAmount(),
+            anonTransactionRequest.getFromUserId(),
+            anonTransactionRequest.getToUserId(),
+            anonTransactionRequest.getMoneyDirection(),
+            anonTransactionRequest.getMonthOfTransaction(),
+            anonTransactionRequest.getYearOfTransaction(),
+            null
+        );
+
+        try {
+            transactionsService.saveNewTransaction(transactionRecord);
+            log.info("Saved new anon transaction record id {}", transactionId);
+
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Successfully saved new anon transaction", HttpStatus.OK.value(), new MessageResponse("Successfully signed up user")));
+        } catch(Exception ex) {
+            log.error("Server experienced error saving anon transaction record");
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(
+                apiVersion,
+                organizationName,
+                "Server experienced an error saving anon transaction record.",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                new MessageResponse("Server experienced an error. Please try again")));
+        }
     }
 
     @GetMapping(value = "/get-transactions")

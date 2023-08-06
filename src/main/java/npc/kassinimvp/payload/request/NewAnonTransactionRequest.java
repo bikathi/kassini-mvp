@@ -7,11 +7,11 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class RecordAnonTransactionRequest {
-    private String toUserId; // this is me - the vendor
-    private String fromUserId; // from who did the money come from - the buyer
+public class NewAnonTransactionRequest {
+    private String toUserId; // this can be vendor or buyer
+    private String fromUserId; // this can be vendor or buyer
     private Integer transactionAmount;
-    private String postId;
+    private String moneyDirection;
     private String dateOfTransaction;
     private String monthOfTransaction;
     private Integer yearOfTransaction;
