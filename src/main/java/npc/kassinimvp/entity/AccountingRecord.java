@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class AccountingRecord {
     @Id
     private String accountingId;
+    private String recordCreatorId;
     private String postId;
     private String dateOfTransaction;
     private Integer transactionAmount;
