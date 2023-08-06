@@ -7,6 +7,7 @@ import npc.kassinimvp.payload.request.RecordTransactionRequest;
 import npc.kassinimvp.payload.response.GenericServiceResponse;
 import npc.kassinimvp.payload.response.MessageResponse;
 import npc.kassinimvp.service.AccountingRecordsService;
+import npc.kassinimvp.service.ProductPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,9 @@ public class AccountingRecordsController {
     @Autowired
     private AccountingRecordsService transactionsService;
 
+    @Autowired
+    private ProductPostService postService;
+
     @Value("${service.api.version}")
     private String apiVersion;
 
@@ -32,7 +36,10 @@ public class AccountingRecordsController {
     @PostMapping(value = "/new-transaction")
     @PreAuthorize("hasAuthority('ROLE_VENDOR')")
     public ResponseEntity<?> recordNewTransaction(@RequestBody RecordTransactionRequest newTransactionRequest) {
-        //first fashion up the AccountingRecord
+        // mark the postId as status true
+        postService.updateProductStatus(newTransactionRequest.getPostId());
+
+        // fashion up the AccountingRecord
         String transactionId = generateTransactionID();
         AccountingRecord transactionRecord = new AccountingRecord(
             transactionId,
@@ -41,6 +48,7 @@ public class AccountingRecordsController {
             newTransactionRequest.getTransactionAmount(),
             newTransactionRequest.getFromUserId(), // you the buyer
             newTransactionRequest.getToUserId(), // me the vendor
+            newTransactionRequest.getMoneyDirection(), // money in or money out
             newTransactionRequest.getMonthOfTransaction(),
             newTransactionRequest.getYearOfTransaction(),
             new BuyerDetails(newTransactionRequest.getBuyerDetails())

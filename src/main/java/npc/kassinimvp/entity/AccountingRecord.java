@@ -19,6 +19,7 @@ public class AccountingRecord {
     private Integer transactionAmount;
     private String fromUserId;
     private String toUserId;
+    private String moneyDirection; //money in or money out
     private String monthOfTransaction;
     private Integer yearOfTransaction;
     private BuyerDetails buyerDetails;

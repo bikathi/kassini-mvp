@@ -12,6 +12,7 @@ public class RecordTransactionRequest {
     private String toUserId; // this is me - the vendor
     private String fromUserId; // from who did the money come from - the buyer
     private Integer transactionAmount;
+    private String moneyDirection; // money in or money out
     private String postId;
     private String dateOfTransaction;
     private String monthOfTransaction;
