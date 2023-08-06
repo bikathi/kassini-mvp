@@ -142,8 +142,19 @@ public class AccountingRecordsController {
 
     @PatchMapping(value = "/update-amount")
     @PreAuthorize("hasAuthority('ROLE_VENDOR') or hasAuthority('ROLE_BUYER')")
-    public ResponseEntity<?> updateTransactionAmount(@RequestParam String transactionId, @RequestParam String newAmout) {
-        return null;
+    public ResponseEntity<?> updateTransactionAmount(@RequestParam String transactionId, @RequestParam String newAmount) {
+        int amount = Integer.parseInt(newAmount);
+        try {
+            transactionsService.updateTransactionAmount(amount, transactionId);
+
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName, "Successfully updated transaction amount",
+                HttpStatus.OK.value(), null));
+        } catch(Exception ex) {
+            log.error("Server experienced error updating transaction amount for transaction {}", transactionId);
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName, "Server experienced error updating transaction amount",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                new MessageResponse("Server experienced an error. Please try again")));
+        }
     }
 
     private String generateTransactionID() {
