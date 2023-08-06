@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -119,12 +120,57 @@ public class ProductPostController {
         }
     }
 
-    @GetMapping(value = "/product-list")
-    @PreAuthorize("hasAuthority('ROLE_VENDOR')")
-    public ResponseEntity<?> getProductPostsList(@RequestParam String postId) {
+    @GetMapping(value = "/get-posts")
+    @PreAuthorize("hasAuthority('ROLE_VENDOR') or hasAuthority('ROLE_BUYER')")
+    public ResponseEntity<?> getProductPostsList(
+        @RequestParam(defaultValue = "0") String page,
+        @RequestParam(defaultValue = "50", required = false) String size,
+        @RequestParam(required = false) String vendorId) {
         // this endpoint will cleverly handle both getting list of all available posts and the list of the
         // posts belonging to a certain userId
-        return null;
+        Integer pageNumber = Integer.valueOf(page);
+        Integer pageSize = Integer.valueOf(size);
+
+        // this intervention will help to ensure we don't waste time on vendors that have no posts the first time a request for their posts comes in
+        if(pageNumber.equals(0) && vendorId != null) {
+            boolean vendorHasPosts = postService.checkIfVendorHasPosts(vendorId);
+            if(!vendorHasPosts) {
+                log.info("Returning empty query to user {} for vendor {} who has no posts", userDetails().getUserId(), vendorId);
+                return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName, "Vendor has made no posts before.", HttpStatus.OK.value(), null));
+            }
+        }
+
+        // if the vendorId is provided, we will return posts for that vendor
+        if(vendorId != null) {
+            try {
+                List<ProductPost> vendorPosts = postService.findPostsByVendorId(vendorId, pageSize, pageNumber).toList();
+                if(vendorPosts.isEmpty()) {
+                    log.info("Returning no other posts by vendor {} for request of user {}", vendorId, userDetails().getUserId());
+                    return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName, "No more posts to load.", HttpStatus.OK.value(), null));
+                }
+                return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName, "Found posts to load.", HttpStatus.OK.value(), vendorPosts));
+
+            } catch(Exception ex) {
+                log.error("Failed when getting vendor {} posts. Details: {}", userDetails().getUserId(), ex.getMessage());
+                return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                    "Server experienced an error. Please try again", HttpStatus.INTERNAL_SERVER_ERROR.value(), new MessageResponse("Failed to get user posts")));
+            }
+        }
+
+        // else if the userId is not provided, we simply return the available posts list
+        try {
+            List<ProductPost> generalPosts = postService.findPagedPostsList(pageSize, pageNumber).toList();
+            if(generalPosts.isEmpty()) {
+                log.info("Returning empty result posts to request of user {}", userDetails().getUserId());
+                return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName, "No more posts to load.", HttpStatus.OK.value(), null));
+            }
+
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName, "Found posts to load.", HttpStatus.OK.value(), generalPosts));
+        } catch(Exception ex) {
+            log.error("Failed when getting posts. Details: {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Server experienced an error. Please try again", HttpStatus.INTERNAL_SERVER_ERROR.value(), new MessageResponse("Failed to get posts")));
+        }
     }
 
     @DeleteMapping(value = "/delete-post")

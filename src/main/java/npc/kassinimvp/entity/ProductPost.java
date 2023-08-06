@@ -4,7 +4,7 @@ import lombok.*;
 import npc.kassinimvp.entity.definitions.Product;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "product-post")
+@Document(collection = "product-posts")
 @Getter
 @Setter
 @ToString
