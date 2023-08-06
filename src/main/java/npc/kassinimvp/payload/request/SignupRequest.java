@@ -13,6 +13,7 @@ import npc.kassinimvp.entity.definitions.Location;
 public class SignupRequest {
     private String firstName;
     private String lastName;
+    private String bioName; // e.g @anonCabbage
     private String email;
     private String password;
     private Long phoneNumber;

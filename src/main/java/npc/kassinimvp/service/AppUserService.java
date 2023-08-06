@@ -17,4 +17,8 @@ public class AppUserService {
     public void createNewUserAccount(AppUser newUser) {
         appUserRepository.save(newUser);
     }
+
+    public boolean userExistsByBioName(String bioName) {
+        return appUserRepository.existsByBioName(bioName);
+    }
 }

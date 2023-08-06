@@ -85,6 +85,12 @@ public class AuthController {
                 "Email is already in use", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Email is already In Use")));
         }
 
+        // ensure that the provided bioName is not already in use
+        if(appUserService.userExistsByBioName(signupRequest.getBioName())) {
+            return ResponseEntity.badRequest().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Bio name is already in use", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Choose unique bio name")));
+        }
+
         Set<AppRoles> userRoles = new HashSet<>();
         signupRequest.getRoles().forEach(role -> {
             switch (role) {
@@ -97,6 +103,7 @@ public class AuthController {
             generateUserId(),
             signupRequest.getFirstName(),
             signupRequest.getLastName(),
+            signupRequest.getBioName(),
             signupRequest.getEmail(),
             userRoles,
             new Location(signupRequest.getLocation().getCounty(), signupRequest.getLocation().getConstituency()),
