@@ -11,6 +11,7 @@ import java.util.Set;
 @ToString
 public class CreateProductPostRequest {
     private String vendorId; // same as userId
+    private String vendorName;
     private NewProductDetails newProductDetails;
 
     @Getter

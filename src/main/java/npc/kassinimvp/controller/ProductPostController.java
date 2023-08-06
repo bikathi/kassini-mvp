@@ -44,13 +44,14 @@ public class ProductPostController {
         // create a LocalDateTime object to represent when the new post was made
         // the date will be in the format dd/MM/yyyy
         LocalDateTime dateTimeNow = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:MM a");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:MMa");
 
         // convert the payload request into a ProductPost object
         String postId = generatePostId();
         ProductPost newPost = new ProductPost(
             postId,
             createPostRequest.getVendorId(),
+            createPostRequest.getVendorName(),
             new Product(
                 createPostRequest.getNewProductDetails().getProductName(),
                 createPostRequest.getNewProductDetails().getProductCost(),
