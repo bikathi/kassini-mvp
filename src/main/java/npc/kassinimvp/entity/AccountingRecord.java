@@ -15,6 +15,7 @@ public class AccountingRecord {
     @Id
     private String accountingId;
     private String recordCreatorId;
+    private Boolean inHouseTransaction;
     private String postId;
     private String dateOfTransaction;
     private Integer transactionAmount;

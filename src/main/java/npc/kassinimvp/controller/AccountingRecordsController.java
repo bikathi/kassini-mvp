@@ -45,6 +45,7 @@ public class AccountingRecordsController {
         AccountingRecord transactionRecord = new AccountingRecord(
             transactionId,
             userDetails().getUserId(),
+            true,
             newTransactionRequest.getPostId(),
             newTransactionRequest.getDateOfTransaction(), // for example 21/01/2023
             newTransactionRequest.getTransactionAmount(),
@@ -87,6 +88,7 @@ public class AccountingRecordsController {
         AccountingRecord transactionRecord = new AccountingRecord(
             transactionId,
             userDetails().getUserId(),
+            false,
             null,
             anonTransactionRequest.getDateOfTransaction(),
             anonTransactionRequest.getTransactionAmount(),
