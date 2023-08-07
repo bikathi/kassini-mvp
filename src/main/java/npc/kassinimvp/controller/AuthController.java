@@ -72,7 +72,7 @@ public class AuthController {
 
         return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
             "Successfully signed in user", HttpStatus.OK.value(), new LoginResponse(
-                userDetails.getUserId(), userDetails.getUsername(), userDetails.getEmail(), userDetails.getPhoneNumber(), authToken, userDetails.getLocation(),
+                userDetails.getUserId(), userDetails.getUsername(), userDetails.getBioName(), userDetails.getEmail(), userDetails.getPhoneNumber(), authToken, userDetails.getLocation(),
                 userRoles
         )));
     }
@@ -83,6 +83,12 @@ public class AuthController {
         if(appUserService.userExistsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.badRequest().body(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Email is already in use", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Email is already In Use")));
+        }
+
+        // ensure that the provided bioName is not already in use
+        if(appUserService.userExistsByBioName(signupRequest.getBioName())) {
+            return ResponseEntity.badRequest().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Bio name is already in use", HttpStatus.BAD_REQUEST.value(), new MessageResponse("Choose unique bio name")));
         }
 
         Set<AppRoles> userRoles = new HashSet<>();
@@ -97,6 +103,7 @@ public class AuthController {
             generateUserId(),
             signupRequest.getFirstName(),
             signupRequest.getLastName(),
+            signupRequest.getBioName(),
             signupRequest.getEmail(),
             userRoles,
             new Location(signupRequest.getLocation().getCounty(), signupRequest.getLocation().getConstituency()),

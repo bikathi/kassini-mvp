@@ -2,6 +2,7 @@ package npc.kassinimvp.entity;
 
 import lombok.*;
 import npc.kassinimvp.entity.definitions.Product;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "product-posts")
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductPost {
+    @Id
     private String postId;
     private String vendorId;
     private String vendorName;

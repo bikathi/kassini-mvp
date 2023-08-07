@@ -13,6 +13,7 @@ import npc.kassinimvp.entity.definitions.Location;
 public class LoginResponse {
     private String userId;
     private String username;
+    private String bioName;
     private String email;
     private Long phoneNumber;
     private String authToken;

@@ -21,6 +21,7 @@ public class AppUser {
     private String userId;
     private String firstName;
     private String lastName;
+    private String bioName;
     private String email;
     private Set<AppRoles> userRoles = new HashSet<>();
     private Location userLocation;
