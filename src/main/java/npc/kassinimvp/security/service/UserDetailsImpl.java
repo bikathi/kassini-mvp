@@ -1,5 +1,6 @@
 package npc.kassinimvp.security.service;
 
+import lombok.Getter;
 import lombok.ToString;
 import npc.kassinimvp.entity.AppUser;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 import npc.kassinimvp.entity.definitions.Location;
 
 @ToString
+@Getter
 public class UserDetailsImpl implements UserDetails {
     private String userId;
     private String firstName;
@@ -22,11 +24,12 @@ public class UserDetailsImpl implements UserDetails {
     private Long phoneNumber;
     private Collection<? extends GrantedAuthority> authorities;
     private Location location;
+    private String bioName;
 
     // custom constructors
     public UserDetailsImpl(
         String firstName, String lastName, String email, String password, Long phoneNumber, Collection<? extends GrantedAuthority> authorities, Location location,
-        String userId
+        String userId, String bioName
     ) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -36,6 +39,7 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
         this.location = location;
         this.userId = userId;
+        this.bioName = bioName;
     }
 
     public static UserDetailsImpl build(AppUser user) {
@@ -44,7 +48,8 @@ public class UserDetailsImpl implements UserDetails {
             role -> new SimpleGrantedAuthority(role.name())
         ).collect(Collectors.toList());
         return new UserDetailsImpl(
-            user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), authorities, user.getUserLocation(), user.getUserId()
+            user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), authorities, user.getUserLocation(), user.getUserId(),
+            user.getBioName()
         );
     }
 
@@ -81,22 +86,6 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public long getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public String getUserId() {
-        return userId;
     }
 
     @Override

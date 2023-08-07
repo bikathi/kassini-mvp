@@ -72,7 +72,7 @@ public class AuthController {
 
         return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
             "Successfully signed in user", HttpStatus.OK.value(), new LoginResponse(
-                userDetails.getUserId(), userDetails.getUsername(), userDetails.getEmail(), userDetails.getPhoneNumber(), authToken, userDetails.getLocation(),
+                userDetails.getUserId(), userDetails.getUsername(), userDetails.getBioName(), userDetails.getEmail(), userDetails.getPhoneNumber(), authToken, userDetails.getLocation(),
                 userRoles
         )));
     }
