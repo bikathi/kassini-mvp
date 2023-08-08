@@ -7,7 +7,6 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import npc.kassinimvp.dto.PrivateMessageDTO;
 
 import jakarta.jms.TextMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -18,15 +17,12 @@ public class DestinationManagementService {
 	@Autowired
 	JmsTemplate jmsTemplate;
 	
-	@Autowired
-	MessageStoreConvenienceMethods convenienceMethods;
-	
 	public boolean createPrivateDestination(String userId) {
-		PrivateMessageDTO internalPrivateMessage = 
-			PrivateMessageDTO.builder()
-			.fromUserId("Hobbyzhub")
+		ChatMessagePayload internalPrivateMessage =
+			ChatMessagePayload.builder()
+			.fromUserId("Kassini")
 			.toUserId(userId)
-			.message("Welcome to Hobbyzhub. We're thrilled to have you.")
+			.message("Welcome to Kassini. We're thrilled to have you.")
 			.dateSent(LocalDate.now().toString())
 			.build();
 		
@@ -39,8 +35,7 @@ public class DestinationManagementService {
                 deliverable.setText(internalMessage);
                 return deliverable;
             });
-			
-			convenienceMethods.storePrivateMessage(internalPrivateMessage);
+
 			log.info("JMSTemplate created new private destination of ID: {}", "user-" + userId);
 			return true;
 		} catch(Exception ex) {

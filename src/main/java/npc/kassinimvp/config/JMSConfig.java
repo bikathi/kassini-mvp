@@ -81,15 +81,9 @@ public class JMSConfig {
         return new DynamicDestinationResolver() {
             @Override
             public Destination resolveDestinationName(Session session, String destinationName, boolean pubSubDomain) throws JMSException {
-                if(destinationName.startsWith("group-")) {
-                    pubSubDomain = true;
-                }
-                else {
-                    pubSubDomain = false;
-                }
-                return super.resolveDestinationName(session,destinationName,pubSubDomain);
+                pubSubDomain = destinationName.startsWith("group-");
+                return super.resolveDestinationName(session, destinationName, pubSubDomain);
             }
         };
     }
-	
 }
