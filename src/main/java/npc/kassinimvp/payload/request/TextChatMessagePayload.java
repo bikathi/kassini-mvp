@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 public class TextChatMessagePayload {
     private String typeOfMessage; // in this case is 'text'
+    private String chatId; // the chat the message belongs to
     private String message;
     private String fromUserId;
     private String toUserId;
