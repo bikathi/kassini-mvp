@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @ToString
 @NoArgsConstructor
+@Builder
 @Document(collection = "user-chats")
 public class Chat {
     @Id
