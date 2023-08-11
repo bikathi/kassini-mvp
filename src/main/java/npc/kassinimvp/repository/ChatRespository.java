@@ -1,6 +1,6 @@
 package npc.kassinimvp.repository;
 
-import org.jgroups.demos.Chat;
+import npc.kassinimvp.entity.Chat;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
