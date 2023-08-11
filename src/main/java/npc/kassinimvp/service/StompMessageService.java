@@ -16,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 public class StompMessageService {
 	@Autowired
 	JmsTemplate jmsTemplate;
+
+    @Autowired
+    ChatMessageService chatMessageService;
 	
 	public boolean sendPrivateTextMessage(String toUserId, TextChatMessagePayload message) {
 		try {
