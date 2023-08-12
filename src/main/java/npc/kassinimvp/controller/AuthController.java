@@ -12,6 +12,7 @@ import npc.kassinimvp.payload.response.MessageResponse;
 import npc.kassinimvp.security.jwt.JwtUtils;
 import npc.kassinimvp.security.service.UserDetailsImpl;
 import npc.kassinimvp.service.AppUserService;
+import npc.kassinimvp.service.DestinationManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -34,16 +35,19 @@ import java.util.UUID;
 @Slf4j
 public class AuthController {
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    JwtUtils jwtUtils;
+    private JwtUtils jwtUtils;
 
     @Autowired
-    AppUserService appUserService;
+    private AppUserService appUserService;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private DestinationManagementService destinationManagementService;
 
     @Value("${service.api.version}")
     private String apiVersion;
@@ -98,9 +102,10 @@ public class AuthController {
                 case "buyer" -> userRoles.add(AppRoles.ROLE_BUYER);
             }
         });
+        String newUserId = generateUserId();
 
         AppUser newUser = new AppUser(
-            generateUserId(),
+            newUserId,
             signupRequest.getFirstName(),
             signupRequest.getLastName(),
             signupRequest.getBioName(),
@@ -113,12 +118,15 @@ public class AuthController {
 
         appUserService.createNewUserAccount(newUser);
 
+        // create their destination Queue on the MOM
+        destinationManagementService.createPrivateDestination(newUserId);
+
         return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
             "Successfully signed up user", HttpStatus.OK.value(), new MessageResponse("Successfully signed up user")));
     }
 
     private String generateUserId() {
         return UUID.randomUUID().toString()
-            .replace("-", "").substring(0, 12);
+            .replace("-", "").substring(0, 15);
     }
 }

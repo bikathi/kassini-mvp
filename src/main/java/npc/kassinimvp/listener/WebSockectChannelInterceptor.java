@@ -16,9 +16,9 @@ public class WebSockectChannelInterceptor implements ChannelInterceptor {
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
 		/*
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-		
+
 		String userId = accessor.getFirstNativeHeader("client-id");
-		
+
 		log.info("Client with id: {} trying to connect", userId);
 		log.info("Intercept connect event...");
 		*/

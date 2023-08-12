@@ -1,13 +1,15 @@
 package npc.kassinimvp.service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
+import npc.kassinimvp.entity.ChatMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+import npc.kassinimvp.payload.request.TextChatMessagePayload;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import npc.kassinimvp.dto.PrivateMessageDTO;
 
 import jakarta.jms.TextMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -17,18 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 public class DestinationManagementService {
 	@Autowired
 	JmsTemplate jmsTemplate;
-	
+
 	@Autowired
-	MessageStoreConvenienceMethods convenienceMethods;
+	ChatMessageService chatMessageService;
 	
 	public boolean createPrivateDestination(String userId) {
-		PrivateMessageDTO internalPrivateMessage = 
-			PrivateMessageDTO.builder()
-			.fromUserId("Hobbyzhub")
+		TextChatMessagePayload internalPrivateMessage =
+			TextChatMessagePayload.builder()
+			.chatId("kassiniUUID")
+			.fromUserId("Kassini")
 			.toUserId(userId)
-			.message("Welcome to Hobbyzhub. We're thrilled to have you.")
-			.dateSent(LocalDate.now().toString())
-			.build();
+			.message("Welcome to Kassini. We're thrilled to have you.")
+			.dateSent(LocalDate.now().format(DateTimeFormatter.ofPattern("E MMM d yyyy"))) // example Fri Aug 11 2023
+		.build();
 		
 		try {
 			String internalMessage = new ObjectMapper().writer().withDefaultPrettyPrinter()
@@ -39,12 +42,25 @@ public class DestinationManagementService {
                 deliverable.setText(internalMessage);
                 return deliverable;
             });
-			
-			convenienceMethods.storePrivateMessage(internalPrivateMessage);
-			log.info("JMSTemplate created new private destination of ID: {}", "user-" + userId);
+
+			// save message to DB
+			ChatMessage messageToSave = ChatMessage.builder()
+				.messageId(internalPrivateMessage.getChatId())
+				.typeOfMessage("text")
+				.chatId(internalPrivateMessage.getChatId())
+				.message(internalPrivateMessage.getMessage())
+				.fromUserId(internalPrivateMessage.getFromUserId())
+				.toUserId(userId)
+				.dateSent(internalPrivateMessage.getDateSent())
+				.productTextDetails(null)
+			.build();
+
+			chatMessageService.saveChat(messageToSave);
+
+			log.info("JMSTemplate created new destination of ID: {}", "user-" + userId);
 			return true;
 		} catch(Exception ex) {
-			log.error("JMSTemplate error creating private destination: {}", ex.getMessage());
+			log.error("JMSTemplate error creating new destination: {}", ex.getMessage());
 			return false;
 		}
 	}
