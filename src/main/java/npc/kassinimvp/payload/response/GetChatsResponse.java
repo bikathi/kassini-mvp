@@ -12,7 +12,6 @@ import java.util.List;
 @Builder
 public class GetChatsResponse {
     private String chatId;
-    private String participantOneId;
-    private String participantTwoId;
+    private List<String> participantIds;
     private List<ChatMessage> chatMessageList;
 }
