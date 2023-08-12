@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/v1/chat")
@@ -64,6 +65,7 @@ public class ChatController {
     }
 
     @GetMapping(value = "/get-chats")
+    @PreAuthorize("hasAuthority('ROLE_VENDOR') or hasAuthority('ROLE_BUYER')")
     public ResponseEntity<?> getChats(
         @RequestParam String userId, @RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "50", required = false) String size) {
         Integer pageNumber = Integer.parseInt(page);
@@ -85,10 +87,16 @@ public class ChatController {
                 if(chatMessages.isEmpty()) {
                     responseList.add(GetChatsResponse.builder()
                         .chatId(chat.getChatId())
-                        .participantOneId(chat.getParticipantId()[0])
-                        // TODO: this here is bound to bring issues if one of the participants deleted the chat on their side
-                        .participantTwoId(chat.getParticipantId()[1])
-                        .chatMessageList(chatMessages)
+                        .participantIds(Arrays.asList(chat.getParticipantId()))
+                        .chatMessageList(chatMessages.stream().map(
+                            chatMessage -> ChatMessage.builder()
+                                    .typeOfMessage(chatMessage.getTypeOfMessage())
+                                    .chatId(chatMessage.getChatId())
+                                    .message(chatMessage.getMessage())
+                                    .fromUserId(chatMessage.getFromUserId())
+                                    .toUserId(chatMessage.getToUserId())
+                                    .productTextDetails(chatMessage.getProductTextDetails())
+                                    .build()).collect(Collectors.toList()))
                     .build());
                 }
             });
@@ -111,7 +119,7 @@ public class ChatController {
          * We will look into the chat with the provided chatID
          * If the userID exists in the List<String> participantIds, we remove it
          * If that List<String>participantId isEmpty() we delete the entire chat plus every message with that chatID
-         * TODO: In the future, place the deletion of whole chats plus messages on JMS queue
+         * TODO: In the future, place the deletion of whole chats plus messages on JMS queue to reduce the API processing time
          */
         try {
             // first find the chat in the database
@@ -124,7 +132,7 @@ public class ChatController {
             // the results of the simple simulation above decide what we do next- whether to delete the whole chat or just one participant id
             if(participants.isEmpty()) {
                 // if the list is empty, then the other participant has deleted the chat. We need to fully delete it plus all messages attached to it
-                // TODO: Figure out the deletion of individual messages later
+                // TODO: Figure out the deletion of individual messages later using the JMS queue
                 chatService.deleteChat(targetChat);
                 log.info("Deleted whole chat of ID {}", chatId);
                 return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
