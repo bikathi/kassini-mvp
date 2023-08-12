@@ -84,21 +84,19 @@ public class ChatController {
             // then for each chat in chatList we get the messages inside of it
             chatList.forEach(chat -> {
                 List<ChatMessage> chatMessages = chatMessageService.findPagedChatMessages(chat.getChatId(), pageNumber, 100).getContent();
-                if(chatMessages.isEmpty()) {
-                    responseList.add(GetChatsResponse.builder()
-                        .chatId(chat.getChatId())
-                        .participantIds(Arrays.asList(chat.getParticipantId()))
-                        .chatMessageList(chatMessages.stream().map(
-                            chatMessage -> ChatMessage.builder()
-                                    .typeOfMessage(chatMessage.getTypeOfMessage())
-                                    .chatId(chatMessage.getChatId())
-                                    .message(chatMessage.getMessage())
-                                    .fromUserId(chatMessage.getFromUserId())
-                                    .toUserId(chatMessage.getToUserId())
-                                    .productTextDetails(chatMessage.getProductTextDetails())
-                                    .build()).collect(Collectors.toList()))
-                    .build());
-                }
+                responseList.add(GetChatsResponse.builder()
+                    .chatId(chat.getChatId())
+                    .participantIds(Arrays.asList(chat.getParticipantId()))
+                    .chatMessageList(chatMessages.stream().map(
+                        chatMessage -> ChatMessage.builder()
+                                .typeOfMessage(chatMessage.getTypeOfMessage())
+                                .chatId(chatMessage.getChatId())
+                                .message(chatMessage.getMessage())
+                                .fromUserId(chatMessage.getFromUserId())
+                                .toUserId(chatMessage.getToUserId())
+                                .productTextDetails(chatMessage.getProductTextDetails())
+                                .build()).collect(Collectors.toList()))
+                .build());
             });
 
             log.info("Found chats for user with ID {}", userId);
@@ -108,6 +106,35 @@ public class ChatController {
             log.error("Error encountered while getting chats for user {}. Details: {}", userId, ex.getMessage());
             return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Failed to get chats. Please Try Again.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
+        }
+    }
+
+    @GetMapping(value = "/get-messages")
+    @PreAuthorize("hasAuthority('ROLE_VENDOR') or hasAuthority('ROLE_BUYER')")
+    public ResponseEntity<?> getMessages(@RequestParam String chatId, @RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "100", required = false) String size) {
+        Integer pageNumber = Integer.parseInt(page);
+        Integer pageSize = Integer.parseInt(size);
+
+        try {
+            List<ChatMessage> chatMessages = chatMessageService.findPagedChatMessages(chatId, pageNumber, pageSize).getContent();
+            GetChatsResponse getChatsResponse = GetChatsResponse.builder()
+                    .chatId(chatId)
+                    .chatMessageList(chatMessages.stream().map(
+                            chatMessage -> ChatMessage.builder()
+                                    .typeOfMessage(chatMessage.getTypeOfMessage())
+                                    .message(chatMessage.getMessage())
+                                    .fromUserId(chatMessage.getFromUserId())
+                                    .toUserId(chatMessage.getToUserId())
+                                    .productTextDetails(chatMessage.getProductTextDetails())
+                                    .build()).collect(Collectors.toList()))
+                    .build();
+            log.info("Found messages for chat with ID {}", chatId);
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Found messages for chat", HttpStatus.OK.value(), getChatsResponse));
+        } catch(Exception ex) {
+            log.error("Error encountered while getting messages for chatID {}", chatId);
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Failed to get messages. Please Try Again.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
         }
     }
 
