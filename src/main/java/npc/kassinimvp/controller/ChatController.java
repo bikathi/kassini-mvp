@@ -2,9 +2,12 @@ package npc.kassinimvp.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import npc.kassinimvp.entity.Chat;
+import npc.kassinimvp.entity.ChatMessage;
 import npc.kassinimvp.payload.request.NewChatRequest;
 import npc.kassinimvp.payload.response.GenericServiceResponse;
+import npc.kassinimvp.payload.response.GetChatsResponse;
 import npc.kassinimvp.payload.response.MessageResponse;
+import npc.kassinimvp.service.ChatMessageService;
 import npc.kassinimvp.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +33,9 @@ public class ChatController {
 
     @Autowired
     private ChatService chatService;
+
+    @Autowired
+    private ChatMessageService chatMessageService;
 
     @PostMapping(value = "/create-chat")
     @PreAuthorize("hasAuthority('ROLE_VENDOR') or hasAuthority('ROLE_BUYER')")
@@ -58,11 +65,42 @@ public class ChatController {
 
     @GetMapping(value = "/get-chats")
     public ResponseEntity<?> getChats(
-        @RequestParam String userId,
-        @RequestParam(defaultValue = "0") String page,
-        @RequestParam(defaultValue = "50", required = false) String size) {
+        @RequestParam String userId, @RequestParam(defaultValue = "0") String page, @RequestParam(defaultValue = "50", required = false) String size) {
         Integer pageNumber = Integer.parseInt(page);
         Integer pageSize = Integer.parseInt(size);
+        try {
+            List<GetChatsResponse> responseList = new ArrayList<>();
+
+            // first we get the chat lists
+            List<Chat> chatList = chatService.getPagedChatsList(userId, pageSize, pageNumber).getContent();
+            if(chatList.isEmpty()) {
+                log.info("User with ID {} has no chats", userId);
+                return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                        "User has no chats", HttpStatus.OK.value(), null));
+            }
+
+            // then for each chat in chatList we get the messages inside of it
+            chatList.forEach(chat -> {
+                List<ChatMessage> chatMessages = chatMessageService.findPagedChatMessages(chat.getChatId(), pageNumber, 100).getContent();
+                if(chatMessages.isEmpty()) {
+                    responseList.add(GetChatsResponse.builder()
+                        .chatId(chat.getChatId())
+                        .participantOneId(chat.getParticipantId()[0])
+                        // TODO: this here is bound to bring issues if one of the participants deleted the chat on their side
+                        .participantTwoId(chat.getParticipantId()[1])
+                        .chatMessageList(chatMessages)
+                    .build());
+                }
+            });
+
+            log.info("Found chats for user with ID {}", userId);
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                    "Found chats for user", HttpStatus.OK.value(), responseList));
+        } catch(Exception ex) {
+            log.error("Error encountered while getting chats for user {}. Details: {}", userId, ex.getMessage());
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Failed to get chats. Please Try Again.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
+        }
     }
 
     @DeleteMapping(value = "/delete-chat")
