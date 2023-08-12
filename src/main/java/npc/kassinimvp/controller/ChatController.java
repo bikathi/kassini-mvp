@@ -11,11 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -57,12 +56,54 @@ public class ChatController {
         }
     }
 
-    public ResponseEntity<?> getChats() {
-        return null;
+    @GetMapping(value = "/get-chats")
+    public ResponseEntity<?> getChats(
+        @RequestParam String userId,
+        @RequestParam(defaultValue = "0") String page,
+        @RequestParam(defaultValue = "50", required = false) String size) {
+        Integer pageNumber = Integer.parseInt(page);
+        Integer pageSize = Integer.parseInt(size);
     }
 
-    public ResponseEntity<?> deleteChat() {
-        return null;
+    @DeleteMapping(value = "/delete-chat")
+    @PreAuthorize("hasAuthority('ROLE_VENDOR') or hasAuthority('ROLE_BUYER')")
+    public ResponseEntity<?> deleteChat(@RequestParam String participantId, @RequestParam String chatId) {
+        /**
+         * Deleting a chat for a user:
+         * We will look into the chat with the provided chatID
+         * If the userID exists in the List<String> participantIds, we remove it
+         * If that List<String>participantId isEmpty() we delete the entire chat plus every message with that chatID
+         * TODO: In the future, place the deletion of whole chats plus messages on JMS queue
+         */
+        try {
+            // first find the chat in the database
+            Chat targetChat = chatService.findChatByChatId(chatId).orElseThrow(() -> new RuntimeException("Chat with id: " + chatId + " not found"));
+
+            // simulate a deletion of the user's ID from the participantID list
+            List<String> participants = Arrays.asList(targetChat.getParticipantId());
+            participants.remove(participantId);
+
+            // the results of the simple simulation above decide what we do next- whether to delete the whole chat or just one participant id
+            if(participants.isEmpty()) {
+                // if the list is empty, then the other participant has deleted the chat. We need to fully delete it plus all messages attached to it
+                // TODO: Figure out the deletion of individual messages later
+                chatService.deleteChat(targetChat);
+                log.info("Deleted whole chat of ID {}", chatId);
+                return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                    "Successfully deleted chat.", HttpStatus.OK.value(), null));
+            }
+            // else it means the other participant never deleted the chat on their side, so we simply update the chat to get rid of this participant's ID
+            targetChat.setParticipantId(participants.toArray(new String[0]));
+            chatService.updateChat(targetChat);
+
+            log.info("Deleted participant {} from chat with chatID {}", participantId, chatId);
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Successfully deleted chat.", HttpStatus.OK.value(), null));
+        } catch(Exception ex) {
+            log.error("Error encountered while deleting chat. Details: {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Failed to delete chat. Please Try Again.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
+        }
     }
 
     private String generateChatId() {
