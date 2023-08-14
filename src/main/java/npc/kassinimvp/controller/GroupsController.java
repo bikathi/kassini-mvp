@@ -61,7 +61,7 @@ public class GroupsController {
         }
     }
 
-    @PostMapping(value = "/add-gitem-member")
+    @PatchMapping(value = "/add-gitem-member")
     @PreAuthorize("hasAuthority('ROLE_VENDOR')")
     public ResponseEntity<?> addGroupItemMember(
             @RequestParam String vendorId, @RequestParam String groupItemId, @RequestBody CreateGroupItemRequest.MinimAppUser memberMinimDetails) {
@@ -84,7 +84,7 @@ public class GroupsController {
             }
 
             // update groups doc in the DB
-            groupsService.insertNewGroupItemMembers(vendorGroups);
+            groupsService.updateGroupItemMembers(vendorGroups);
 
             // return response to user
             log.info("Update members list for group of vendor {}", vendorId);
@@ -97,10 +97,39 @@ public class GroupsController {
         }
     }
 
-    @DeleteMapping(value = "/remove-gitem-member")
+    @PatchMapping(value = "/remove-gitem-member")
     @PreAuthorize("hasAuthority('ROLE_VENDOR')")
-    public ResponseEntity<?> removeGroupItemMember() {
-        return null;
+    public ResponseEntity<?> removeGroupItemMember(@RequestParam String vendorId, @RequestParam String groupItemId, @RequestParam String memberId) {
+        try {
+            // retrieve groups by memberId
+            Groups vendorGroups = groupsService.findGroupsByVendorId(vendorId).orElseThrow(() -> new RuntimeException("Failed to find groups for vendorId: " + vendorId));
+
+            // find the correct groupItem based on the provided ID
+            for(GroupItem groupItem : vendorGroups.getGroupItems()) {
+                if(groupItem.getGroupId().equals(groupItemId)) {
+                    // remove the member with a matching memberId from the list
+                    for(AppUser groupMember : groupItem.getGroupMembers()) {
+                        if(groupMember.getUserId().equals(memberId)) {
+                            groupItem.getGroupMembers().remove(groupMember);
+                            break;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // update groups doc in the DB
+            groupsService.updateGroupItemMembers(vendorGroups);
+
+            // return response to user
+            log.info("Update members list for group of vendor {}", vendorId);
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                    "Successfully removed member from list.", HttpStatus.OK.value(), null));
+        } catch(Exception ex) {
+            log.error("Error encountered while removing member from groups of vendor {}. Details: {}", vendorId, ex.getMessage());
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Failed to remove member. Please Try Again.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
+        }
     }
 
     @PostMapping(value = "/sms-gitem-members")

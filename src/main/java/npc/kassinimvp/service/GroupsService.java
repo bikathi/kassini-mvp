@@ -38,7 +38,7 @@ public class GroupsService {
         return groupsRepository.findByVendorId(vendorId);
     }
 
-    public void insertNewGroupItemMembers(Groups updatedGroupInfo) {
+    public void updateGroupItemMembers(Groups updatedGroupInfo) {
         Query findQuery = new Query(Criteria.where("vendorId").is(updatedGroupInfo.getVendorId()));
         Update updateDefinition = new Update().set("groupItems", updatedGroupInfo.getGroupItems());
 
