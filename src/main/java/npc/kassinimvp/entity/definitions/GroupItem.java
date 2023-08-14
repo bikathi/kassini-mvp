@@ -11,9 +11,9 @@ import java.util.List;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class GroupItem {
-    private Integer groupId;
+    private String groupId;
     private String groupName;
-    private String dateCreated;
     private List<AppUser> groupMembers = new ArrayList<>(10);
 }
