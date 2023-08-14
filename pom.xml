@@ -74,7 +74,12 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.11.0</version>
+		</dependency>
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
