@@ -1,5 +1,6 @@
 package npc.kassinimvp.service;
 
+import com.mongodb.client.result.UpdateResult;
 import npc.kassinimvp.entity.Groups;
 import npc.kassinimvp.entity.definitions.GroupItem;
 import npc.kassinimvp.repository.GroupsRepository;
@@ -10,6 +11,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class GroupsService {
@@ -29,5 +32,16 @@ public class GroupsService {
 
         FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions().returnNew(false).upsert(false);
         mongoTemplate.findAndModify(findQuery, updateDefinition, findAndModifyOptions, Groups.class, "vendor-groups");
+    }
+
+    public Optional<Groups> findGroupsByVendorId(String vendorId) {
+        return groupsRepository.findByVendorId(vendorId);
+    }
+
+    public void insertNewGroupItemMembers(Groups updatedGroupInfo) {
+        Query findQuery = new Query(Criteria.where("vendorId").is(updatedGroupInfo.getVendorId()));
+        Update updateDefinition = new Update().set("groupItems", updatedGroupInfo.getGroupItems());
+
+        UpdateResult updateResult = mongoTemplate.upsert(findQuery, updateDefinition, Groups.class, "vendor-groups");
     }
 }

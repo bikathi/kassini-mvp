@@ -2,6 +2,7 @@ package npc.kassinimvp.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import npc.kassinimvp.entity.AppUser;
+import npc.kassinimvp.entity.Groups;
 import npc.kassinimvp.entity.definitions.GroupItem;
 import npc.kassinimvp.payload.request.CreateGroupItemRequest;
 import npc.kassinimvp.payload.response.GenericServiceResponse;
@@ -54,7 +55,7 @@ public class GroupsController {
             return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Successfully created item.", HttpStatus.OK.value(), null));
         } catch(Exception ex) {
-            log.error("Error encountered while deleting chat. Details: {}", ex.getMessage());
+            log.error("Error encountered while creating groupItem of vendor {}. Details: {}", vendorId, ex.getMessage());
             return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
                 "Failed to create item. Please Try Again.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
         }
@@ -62,8 +63,38 @@ public class GroupsController {
 
     @PostMapping(value = "/add-gitem-member")
     @PreAuthorize("hasAuthority('ROLE_VENDOR')")
-    public ResponseEntity<?> addGroupItemMember() {
-        return null;
+    public ResponseEntity<?> addGroupItemMember(
+            @RequestParam String vendorId, @RequestParam String groupItemId, @RequestBody CreateGroupItemRequest.MinimAppUser memberMinimDetails) {
+        try {
+            // retrieve groups by vendorId
+            Groups vendorGroups = groupsService.findGroupsByVendorId(vendorId).orElseThrow(() -> new RuntimeException("Failed to find groups for vendorId: " + vendorId));
+
+            // find the correct groupItem based on the provided ID
+            for(GroupItem groupItem : vendorGroups.getGroupItems()) {
+                if(groupItem.getGroupId().equals(groupItemId)) {
+                    // add the new member to the list
+                    groupItem.getGroupMembers().add(AppUser.builder()
+                        .userId(memberMinimDetails.getUserId())
+                        .bioName(memberMinimDetails.getBioName())
+                        .firstName(memberMinimDetails.getFirstName())
+                        .lastName(memberMinimDetails.getLastName())
+                    .build());
+                    break;
+                }
+            }
+
+            // update groups doc in the DB
+            groupsService.insertNewGroupItemMembers(vendorGroups);
+
+            // return response to user
+            log.info("Update members list for group of vendor {}", vendorId);
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Successfully added member to list.", HttpStatus.OK.value(), null));
+        } catch(Exception ex) {
+            log.error("Error encountered while adding member to groups of vendor {}. Details: {}", vendorId, ex.getMessage());
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Failed to add member. Please Try Again.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
+        }
     }
 
     @DeleteMapping(value = "/remove-gitem-member")
