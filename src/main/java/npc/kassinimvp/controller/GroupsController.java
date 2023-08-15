@@ -45,9 +45,10 @@ public class GroupsController {
             .groupName(createGroupItemRequest.getGroupName())
             .groupMembers(createGroupItemRequest.getGroupMembers().stream().map(minimAppUser -> AppUser.builder()
                 .userId(minimAppUser.getUserId())
-                    .bioName(minimAppUser.getBioName())
-                    .firstName(minimAppUser.getFirstName())
-                    .lastName(minimAppUser.getLastName())
+                .phoneNumber(minimAppUser.getPhoneNumber())
+                .bioName(minimAppUser.getBioName())
+                .firstName(minimAppUser.getFirstName())
+                .lastName(minimAppUser.getLastName())
             .build()).collect(Collectors.toList()))
         .build();
 
@@ -80,6 +81,7 @@ public class GroupsController {
                     // add the new member to the list
                     groupItem.getGroupMembers().add(AppUser.builder()
                         .userId(memberMinimDetails.getUserId())
+                        .phoneNumber(memberMinimDetails.getPhoneNumber())
                         .bioName(memberMinimDetails.getBioName())
                         .firstName(memberMinimDetails.getFirstName())
                         .lastName(memberMinimDetails.getLastName())
@@ -140,6 +142,7 @@ public class GroupsController {
     @PostMapping(value = "/sms-gitem-members")
     @PreAuthorize("hasAuthority('ROLE_VENDOR')")
     public ResponseEntity<?> smsGroupItemMembers(@RequestBody List<String> targetNumbers) {
+        // NB: the client should have converted the Long phone number into a String and add them to the RB List<String>
         String[] recipientNumbers = targetNumbers.toArray(new String[0]);
         log.info("Recipient numbers {}", (Object) recipientNumbers);
 
