@@ -6,6 +6,7 @@ import npc.kassinimvp.entity.Groups;
 import npc.kassinimvp.entity.definitions.GroupItem;
 import npc.kassinimvp.payload.request.CreateGroupItemRequest;
 import npc.kassinimvp.payload.response.GenericServiceResponse;
+import npc.kassinimvp.service.AfricasTalkingService;
 import npc.kassinimvp.service.GroupsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,9 @@ import java.util.stream.Collectors;
 public class GroupsController {
     @Autowired
     private GroupsService groupsService;
+
+    @Autowired
+    private AfricasTalkingService africasTalkingService;
 
     @Value("${service.api.version}")
     private String apiVersion;
@@ -134,8 +139,20 @@ public class GroupsController {
 
     @PostMapping(value = "/sms-gitem-members")
     @PreAuthorize("hasAuthority('ROLE_VENDOR')")
-    public ResponseEntity<?> smsGroupItemMembers() {
-        return null;
+    public ResponseEntity<?> smsGroupItemMembers(@RequestBody List<String> targetNumbers) {
+        String[] recipientNumbers = targetNumbers.toArray(new String[0]);
+        log.info("Recipient numbers {}", (Object) recipientNumbers);
+
+        try {
+            africasTalkingService.sendBulkSMS(recipientNumbers);
+            log.info("Successfully sent SMS to target numbers");
+            return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Successfully sent SMSs to recipients.", HttpStatus.OK.value(), null));
+        } catch(Exception ex) {
+            log.error("Error encountered while sending SMSs. Details: {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new GenericServiceResponse<>(apiVersion, organizationName,
+                "Failed to send message. Please Try Again.", HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
+        }
     }
 
     private String generateGroupItemId() {
