@@ -22,5 +22,6 @@ public class CreateGroupItemRequest {
         private String bioName;
         private String firstName;
         private String lastName;
+        private Long phoneNumber;
     }
 }
