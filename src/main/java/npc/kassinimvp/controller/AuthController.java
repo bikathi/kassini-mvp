@@ -1,6 +1,7 @@
 package npc.kassinimvp.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import npc.kassinimvp.entity.Groups;
 import npc.kassinimvp.entity.definitions.AppRoles;
 import npc.kassinimvp.entity.AppUser;
 import npc.kassinimvp.entity.definitions.Location;
@@ -13,6 +14,7 @@ import npc.kassinimvp.security.jwt.JwtUtils;
 import npc.kassinimvp.security.service.UserDetailsImpl;
 import npc.kassinimvp.service.AppUserService;
 import npc.kassinimvp.service.DestinationManagementService;
+import npc.kassinimvp.service.GroupsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -24,10 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -48,6 +47,9 @@ public class AuthController {
 
     @Autowired
     private DestinationManagementService destinationManagementService;
+
+    @Autowired
+    private GroupsService groupsService;
 
     @Value("${service.api.version}")
     private String apiVersion;
@@ -121,6 +123,11 @@ public class AuthController {
         // create their destination Queue on the MOM
         destinationManagementService.createPrivateDestination(newUserId);
 
+        // If they are a vendor, create for them an empty Groups document. They can populate later if they choose to
+        if(userRoles.contains(AppRoles.ROLE_VENDOR)) {
+            groupsService.createGroups(Groups.builder().groupId(generateGroupsId()).vendorId(newUserId).groupItems(new ArrayList<>()).build());
+        }
+
         return ResponseEntity.ok(new GenericServiceResponse<>(apiVersion, organizationName,
             "Successfully signed up user", HttpStatus.OK.value(), new MessageResponse("Successfully signed up user")));
     }
@@ -128,5 +135,10 @@ public class AuthController {
     private String generateUserId() {
         return UUID.randomUUID().toString()
             .replace("-", "").substring(0, 15);
+    }
+
+    private String generateGroupsId() {
+        return UUID.randomUUID().toString()
+                .replace("-", "").substring(0, 15);
     }
 }
