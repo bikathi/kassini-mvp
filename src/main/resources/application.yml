@@ -19,3 +19,9 @@ service:
     expirationMS: 3600000 # token expires in 1hr after issuing
 server:
   port: 9101
+
+# Africa's Talking Configuration
+app:
+  information:
+    username: kassini
+    apikey: a716ad192583de9a2ef1f98dc91f58c3473f9064b630d7053911026ef48ea322
